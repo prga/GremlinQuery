@@ -12,6 +12,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.lib.ObjectId;
 
+import com.tinkerpop.gremlin.groovy.Gremlin;
+
 import scala.util.control.Exception.Catch;
 import util.ChkoutCmd
 import util.RecursiveFileList
@@ -55,7 +57,7 @@ class Extractor {
 	}
 	
 	public void removeOldRevisionFile(){
-		def out = new File(this.project.name + '_RevisionsFiles.csv')
+		def out = new File("ResultData" + File.separator + this.project.name + File.separator + 'RevisionsFiles.csv')
 		out.delete()
 		
 	}
@@ -441,7 +443,7 @@ class Extractor {
 	
 	def writeRevisionsFilePathsFile(String filePath){
 		try {
-			def out = new File(this.project.name + '_RevisionsFiles.csv')
+			def out = new File("ResultData" + File.separator + this.project.name + File.separator + 'RevisionsFiles.csv')
 			def row = filePath + '\n'
 			out.append(row)
 		} catch (Exception e) {
@@ -451,7 +453,7 @@ class Extractor {
 	
 	public String getRevisionFile(){
 		String current = new java.io.File( "." ).getCanonicalPath();
-		String filePath = current + File.separator + this.project.name + '_RevisionsFiles.csv'
+		String filePath = current + File.separator + "ResultData" + File.separator + this.project.name + File.separator +'RevisionsFiles.csv'
 		return filePath
 	}
 	
@@ -637,14 +639,14 @@ class Extractor {
 		//		ArrayList<MergeCommit> lm = new ArrayList<MergeCommit>()
 		//		lm.add(mc)
 		//
-		//		Project p = new Project()
-		//		p.name = "rgms"
-		//		p.url = "https://github.com/spgroup/rgms.git"
-		//		p.graph = "C:/Users/Guilherme/Documents/workspace/gitminer-master/gitminer-master/graph.db_30-10"
-		//		p.listMergeCommit = lm
-		//
-		//		Extractor ex = new Extractor(p)
-		//		//ex.extractCommits()
+			GremlinProject p = new GremlinProject()
+			p.name = "orientdb"
+			p.url = "https://github.com/orientechnologies/orientdb.git"
+			p.graph = "C:/Users/Guilherme/Documents/workspace/gitminer-master/gitminer-master/graph.db_30-10"
+		
+			Extractor ex = new Extractor(p,"/Users/paolaaccioly/Documents/Doutorado/temp/orientdb")
+				String base = ex.findCommonAncestor("98f95d085f0026055792c70295787e38df99e654", "9aa13e5348e9e05812ddddf55bac7a0eeb39598c")
+				println base
 		
 		
 	}

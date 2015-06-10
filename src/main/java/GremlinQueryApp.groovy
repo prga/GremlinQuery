@@ -143,6 +143,7 @@ class GremlinQueryApp {
 	
 	
 	public String run(String projectName, String projectRepo, String graphBase, String downloadPath){
+		this.createProjectDir(projectName)
 		GremlinProject project = new GremlinProject(projectName, projectRepo, graphBase)
 		GremlinQuery gq = new GremlinQuery(project.graph)
 		project.listMergeCommit = gq.mergeCommitsList
@@ -152,6 +153,14 @@ class GremlinQueryApp {
 		println('All merges were downloaded from GitHub!\n')
 		return e.getRevisionFile()
 
+	}
+	
+	private void createProjectDir(String projectName){
+		File projectDir = new File( "ResultData" + File.separator + projectName)
+		if(!projectDir.exists()){
+			projectDir.mkdir()
+		}
+		
 	}
 	
 	public static void main (String[] args){
