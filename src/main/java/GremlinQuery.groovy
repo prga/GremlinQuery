@@ -100,8 +100,9 @@ class GremlinQuery {
 			
 			s = tokens[counter]
 			
-			if(s.contains(" hash:") && s.length() == 46){
+			if(s.contains(" hash:") && s.length() == 47){
 				foundSha = true
+				
 			}else{
 			
 			counter++
@@ -111,7 +112,8 @@ class GremlinQuery {
 		
 		String sha = ""
 		if(foundSha){
-		sha = s.substring(6)
+		sha = s.substring(6, s.length()-1)
+		
 		println(sha)
 		}
 		
