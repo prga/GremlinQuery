@@ -1,3 +1,4 @@
+package main
 import org.codehaus.groovy.antlr.Main;
 import com.tinkerpop.blueprints.impls.tg.*
 import com.tinkerpop.blueprints.*
