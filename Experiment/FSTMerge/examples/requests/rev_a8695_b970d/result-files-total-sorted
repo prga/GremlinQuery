@@ -1,6 +1,0 @@
-INFO: processing rev_a8695_b970d/rev_a8695-b970d/requests/api.py.merge with (4, 18, 8, 0)
-INFO: processing rev_a8695_b970d/rev_a8695-b970d/requests/api.py with (4, 18, 8, 0)
-INFO: processing rev_a8695_b970d/rev_a8695-b970d/requests/core.py.merge with (1, 2, 2, 0)
-INFO: processing rev_a8695_b970d/rev_a8695-b970d/requests/core.py with (0, 0, 0, 1)
-INFO: processing rev_a8695_b970d/rev_a8695-b970d/requests/models.py.merge with (1, 1, 4, 0)
-INFO: processing rev_a8695_b970d/rev_a8695-b970d/test_requests.py.merge with (1, 294, 0, 0)

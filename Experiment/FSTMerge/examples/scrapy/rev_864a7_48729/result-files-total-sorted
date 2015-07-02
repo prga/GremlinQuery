@@ -1,5 +1,0 @@
-INFO: processing rev_864a7_48729/rev_864a7-48729/scrapy/contrib/downloadermiddleware/httpcache.py.merge with (5, 14, 10, 0)
-INFO: processing rev_864a7_48729/rev_864a7-48729/scrapy/contrib/httpcache.py.merge with (2, 84, 64, 0)
-INFO: processing rev_864a7_48729/rev_864a7-48729/scrapy/contrib/httpcache.py with (1, 0, 11, 0)
-INFO: processing rev_864a7_48729/rev_864a7-48729/scrapy/tests/test_downloadermiddleware_httpcache.py.merge with (2, 3, 3, 0)
-INFO: processing rev_864a7_48729/rev_864a7-48729/scrapy/tests/test_downloadermiddleware_httpcache.py with (1, 0, 11, 1)
