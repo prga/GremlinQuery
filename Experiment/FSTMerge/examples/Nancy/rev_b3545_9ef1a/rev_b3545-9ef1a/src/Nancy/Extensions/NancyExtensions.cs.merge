@@ -1,0 +1,19 @@
+namespace Nancy.Extensions
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771115881/fstmerge_var1_6087213170351820890
+{
+=======
+{    
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771115881/fstmerge_var2_9054762256115351785
+    using System.Collections.Generic;
+    using System.Linq;    
+    using Nancy.Routing;
+
+    public static class NancyExtensions
+    {
+        public static IEnumerable<RouteDescription> GetRouteDescription(this NancyModule source, string method)
+        {
+            return source.GetRoutes(method).Select(route => new RouteDescription { ModulePath = source.ModulePath, Path = route.Key, Method = method });
+        }
+    }
+}
+

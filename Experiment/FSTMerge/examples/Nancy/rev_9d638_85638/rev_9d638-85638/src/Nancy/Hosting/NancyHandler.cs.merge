@@ -1,0 +1,71 @@
+﻿namespace Nancy.Hosting
+{
+    using System.Web;
+    using Nancy.Extensions;
+
+    public class NancyHandler
+    {        
+        private readonly INancyEngine engine;
+
+        public NancyHandler(INancyEngine engine)
+        {
+            this.engine = engine;
+        }
+
+        public void ProcessRequest(HttpContextBase context)
+        {
+            if(IsRequestForFavicon(context))
+            {
+                return;
+            }
+
+            var request = CreateNancyRequest(context);
+            var response = engine.HandleRequest(request);
+
+            SetNancyResponseToHttpResponse(context, response);
+        }
+
+        private static bool IsRequestForFavicon(HttpContextBase context)
+        {
+            return context.Request.Url.AbsolutePath.Contains("favicon.ico");
+        }
+
+        private static IRequest CreateNancyRequest(HttpContextBase context)
+        {
+            return new Request(
+                context.Request.HttpMethod,
+                context.Request.AppRelativeCurrentExecutionFilePath.Replace("~",""),
+                context.Request.Headers.ToDictionary(),
+                context.Request.InputStream,
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390770913537/fstmerge_var1_1248269510420045795
+                context.Request.Url.Scheme,
+                context.Request.Url.Query);
+=======
+                context.Request.Url.Scheme,
+			    context.Request.QueryString);
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390770913537/fstmerge_var2_7798421751198935117
+        }
+
+        private static void SetNancyResponseToHttpResponse(HttpContextBase context, Response response)
+        {
+            SetHttpResponseHeaders(context, response);
+
+            context.Response.ContentType = response.ContentType;
+            context.Response.StatusCode = (int)response.StatusCode;
+            response.Contents.Invoke(context.Response.OutputStream);         
+        }
+
+        private static void SetHttpResponseHeaders(HttpContextBase context, Response response)
+        {
+            foreach (var kvp in response.Headers)
+            {
+                context.Response.AddHeader(kvp.Key, kvp.Value);
+            }
+            foreach(var cookie in response.Cookies)
+            {
+                context.Response.AddHeader("Set-Cookie", cookie.ToString());
+            }
+        }
+    }
+}
+

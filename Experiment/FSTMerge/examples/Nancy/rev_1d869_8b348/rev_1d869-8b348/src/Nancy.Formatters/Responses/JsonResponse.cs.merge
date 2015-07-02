@@ -1,0 +1,68 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390770779120/fstmerge_var1_3869545289942489800
+﻿namespace Nancy.Formatters.Responses
+{
+    using System;
+    using System.IO;
+    using System.Net;
+    using Newtonsoft.Json;
+
+    public class JsonResponse<TModel> : Response
+    {
+        public JsonResponse(TModel model)
+        {
+            this.Contents = GetJsonContents(model);
+            this.ContentType = "application/json";
+            this.StatusCode = HttpStatusCode.OK;
+        }
+     
+        private static Action<Stream> GetJsonContents(TModel model)
+        {
+            return stream =>
+                       {
+                           var serializer = new JsonSerializer();
+
+                           //The caller will close the stream (needed for tests), do not dispose these writers here as this will close the stream 
+                           var sw = new StreamWriter(stream);
+                           var writer = new JsonTextWriter(sw);
+                           
+                           serializer.Serialize(writer, model);
+                           
+                           writer.Flush();
+                           sw.Flush();
+                       };
+        }
+    }
+}=======
+﻿namespace Nancy.Formatters.Responses
+{
+    using System;
+    using System.IO;
+    using Newtonsoft.Json;
+
+    public class JsonResponse<TModel> : Response
+    {
+        public JsonResponse(TModel model)
+        {
+            this.Contents = GetJsonContents(model);
+            this.ContentType = "application/json";
+        }
+     
+        private static Action<Stream> GetJsonContents(TModel model)
+        {
+            return stream =>
+                       {
+                           var serializer = new JsonSerializer();
+
+                           //The caller will close the stream (needed for tests), do not dispose these writers here as this will close the stream 
+                           var sw = new StreamWriter(stream);
+                           var writer = new JsonTextWriter(sw);
+                           
+                           serializer.Serialize(writer, model);
+                           
+                           writer.Flush();
+                           sw.Flush();
+                       };
+        }
+    }
+}>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390770779120/fstmerge_var2_3582129644472969852
+

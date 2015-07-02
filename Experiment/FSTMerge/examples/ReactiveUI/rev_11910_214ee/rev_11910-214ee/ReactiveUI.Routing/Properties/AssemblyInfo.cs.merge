@@ -1,0 +1,17 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282753/fstmerge_var1_1359288965862804240
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("ReactiveUI.Routing")]
+[assembly: AssemblyDescription("A ViewModel-based Routing framework for RxUI")]
+[assembly: AssemblyProduct("ReactiveUI.Routing")]
+
+[assembly: AssemblyVersion("4.6.4")]
+[assembly: InternalsVisibleTo("ReactiveUI.Routing.Tests")]
+[assembly: InternalsVisibleTo("ReactiveUI.Routing.Explorables")]=======
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282753/fstmerge_var2_4675651499755306178
+

@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2007 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390148809202/fstmerge_var1_8866037794008712885
+package org.mockito.internal.invocation;
+=======
+package org.mockito.internal.invocation;
+
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390148809202/fstmerge_var2_2452861122063682675
+
+import org.mockito.invocation.Invocation;
+
+public interface CapturesArgumensFromInvocation {
+    
+    void captureArgumentsFrom(Invocation i);
+    
+}
+

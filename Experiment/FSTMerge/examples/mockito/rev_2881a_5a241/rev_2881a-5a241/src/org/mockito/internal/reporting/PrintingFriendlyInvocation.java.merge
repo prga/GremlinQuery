@@ -1,0 +1,14 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390148809836/fstmerge_var1_8157102213391609087
+/*
+ * Copyright (c) 2007 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package org.mockito.internal.reporting;
+
+public interface PrintingFriendlyInvocation {
+
+    String toString(PrintSettings printSettings);
+
+}=======
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390148809836/fstmerge_var2_3062042403494606012
+

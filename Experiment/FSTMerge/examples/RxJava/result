@@ -1,0 +1,270 @@
+./rev_128e5_d3d27/result
+Semistructured merge
+(0, 0, 0, 0, 2, 0)
+LOC with comments: 7604
+LOC without comments: 6257
+Unstructured merge
+(2, 2, 4, 0, 2, 2)
+LOC with comments: 3990
+LOC without comments: 3769
+
+./rev_1a7e5_92ba6/result
+Semistructured merge
+(0, 0, 0, 0, 2, 0)
+LOC with comments: 9947
+LOC without comments: 8248
+Unstructured merge
+(6, 21, 208, 0, 2, 2)
+LOC with comments: 8768
+LOC without comments: 8192
+
+./rev_243e6_72172/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 4714
+LOC without comments: 3913
+Unstructured merge
+(2, 23, 23, 0, 1, 1)
+LOC with comments: 4120
+LOC without comments: 3895
+
+./rev_2519e_a2f04/result
+Semistructured merge
+(1, 11, 0, 0, 2, 1)
+LOC with comments: 7235
+LOC without comments: 5776
+Unstructured merge
+(2, 38, 12, 0, 2, 2)
+LOC with comments: 4034
+LOC without comments: 3800
+
+./rev_2a3ad_1c47b/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 4475
+LOC without comments: 3714
+Unstructured merge
+(1, 1, 1, 0, 1, 1)
+LOC with comments: 3932
+LOC without comments: 3717
+
+./rev_2e625_57f9a/result
+Semistructured merge
+(1, 1558, 0, 0, 1, 1)
+LOC with comments: 4545
+LOC without comments: 3771
+Unstructured merge
+(3, 48, 62, 0, 1, 1)
+LOC with comments: 4000
+LOC without comments: 3779
+
+./rev_3cfc1_ef3ff/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 3574
+LOC without comments: 2824
+Unstructured merge
+(1, 61, 43, 0, 1, 1)
+LOC with comments: 3127
+LOC without comments: 2827
+
+./rev_5df8e_6c4b5/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 4938
+LOC without comments: 4084
+Unstructured merge
+(1, 2, 0, 0, 1, 1)
+LOC with comments: 4430
+LOC without comments: 4193
+
+./rev_75b97_23f04/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 217
+LOC without comments: 64
+Unstructured merge
+(1, 196, 0, 0, 1, 1)
+LOC with comments: 272
+LOC without comments: 226
+
+./rev_797bf_c9f2c/result
+Semistructured merge
+(0, 0, 0, 1, 3, 0)
+LOC with comments: 6558
+LOC without comments: 4839
+Unstructured merge
+(3, 599, 118, 0, 3, 3)
+LOC with comments: 5944
+LOC without comments: 5353
+
+./rev_8d77f_ff565/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 6749
+LOC without comments: 5644
+Unstructured merge
+(2, 239, 22, 0, 1, 1)
+LOC with comments: 5974
+LOC without comments: 5650
+
+./rev_9cef1_ff731/result
+Semistructured merge
+(1, 1, 1, 0, 2, 1)
+LOC with comments: 435
+LOC without comments: 340
+Unstructured merge
+(2, 1, 4, 0, 2, 2)
+LOC with comments: 406
+LOC without comments: 338
+
+./rev_9cfb2_fccef/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 4514
+LOC without comments: 3573
+Unstructured merge
+(1, 1, 30, 0, 1, 1)
+LOC with comments: 3920
+LOC without comments: 3567
+
+./rev_a1c62_5a534/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 3914
+LOC without comments: 3062
+Unstructured merge
+(1, 2, 1, 0, 1, 1)
+LOC with comments: 3409
+LOC without comments: 3099
+
+./rev_a7254_0d420/result
+Semistructured merge
+(2, 0, 49, 0, 1, 1)
+LOC with comments: 512
+LOC without comments: 334
+Unstructured merge
+(4, 3, 58, 0, 1, 1)
+LOC with comments: 364
+LOC without comments: 316
+
+./rev_af383_8a388/result
+Semistructured merge
+(1, 2, 2, 0, 3, 1)
+LOC with comments: 823
+LOC without comments: 586
+Unstructured merge
+(4, 10, 11, 0, 3, 3)
+LOC with comments: 704
+LOC without comments: 610
+
+./rev_b6655_b868b/result
+Semistructured merge
+(2, 0, 21, 0, 1, 1)
+LOC with comments: 99
+LOC without comments: 71
+Unstructured merge
+(1, 2, 2, 0, 1, 1)
+LOC with comments: 58
+LOC without comments: 51
+
+./rev_b9466_17bef/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 4832
+LOC without comments: 3822
+Unstructured merge
+(2, 11, 8, 0, 1, 1)
+LOC with comments: 4198
+LOC without comments: 3828
+
+./rev_be560_1220c/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 4440
+LOC without comments: 3507
+Unstructured merge
+(1, 2, 0, 0, 1, 1)
+LOC with comments: 3862
+LOC without comments: 3514
+
+./rev_c87d1_a7309/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 3736
+LOC without comments: 2950
+Unstructured merge
+(2, 134, 48, 0, 1, 1)
+LOC with comments: 3263
+LOC without comments: 2948
+
+./rev_ce65c_8c4e9/result
+Semistructured merge
+(1, 9, 10, 0, 1, 1)
+LOC with comments: 83
+LOC without comments: 60
+Unstructured merge
+(1, 9, 10, 0, 1, 1)
+LOC with comments: 67
+LOC without comments: 59
+
+./rev_d1fa4_5ded8/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 5433
+LOC without comments: 4455
+Unstructured merge
+(3, 138, 393, 0, 1, 1)
+LOC with comments: 4833
+LOC without comments: 4465
+
+./rev_e20a8_9c6de/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 3706
+LOC without comments: 2904
+Unstructured merge
+(1, 22, 1, 0, 1, 1)
+LOC with comments: 3213
+LOC without comments: 2907
+
+./rev_eb295_c4974/result
+Semistructured merge
+(1, 3, 3, 0, 2, 1)
+LOC with comments: 8799
+LOC without comments: 7265
+Unstructured merge
+(3, 32, 16, 0, 2, 2)
+LOC with comments: 7769
+LOC without comments: 7345
+
+./rev_ed89e_62220/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 6907
+LOC without comments: 5767
+Unstructured merge
+(1, 116, 21, 0, 1, 1)
+LOC with comments: 6098
+LOC without comments: 5767
+
+./rev_ff922_d0061/result
+Semistructured merge
+(1, 0, 4, 0, 1, 1)
+LOC with comments: 158
+LOC without comments: 69
+Unstructured merge
+(1, 0, 146, 0, 1, 1)
+LOC with comments: 188
+LOC without comments: 148
+
+./rev_ff922_f49c4/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 0
+LOC without comments: 0
+Unstructured merge
+(0, 0, 0, 0, 0, 0)
+LOC with comments: 0
+LOC without comments: 0
+

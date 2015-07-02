@@ -1,0 +1,10 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855417728/fstmerge_var1_2410392300746717201
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+
+[assembly: AssemblyDescription("An MVVM framework that integrates the Reactive Extensions")]
+[assembly: AssemblyProduct("ReactiveUI.Cocoa")]
+[assembly: AssemblyVersion("4.6.3")]=======
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855417728/fstmerge_var2_288323817218553295
+

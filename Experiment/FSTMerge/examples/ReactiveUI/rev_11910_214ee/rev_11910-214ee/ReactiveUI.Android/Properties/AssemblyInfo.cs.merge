@@ -1,0 +1,10 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282592/fstmerge_var1_1832890414371002301
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+
+[assembly: AssemblyDescription("An MVVM framework that integrates the Reactive Extensions")]
+[assembly: AssemblyProduct("ReactiveUI.Android")]
+[assembly: AssemblyVersion("4.6.4")]=======
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282592/fstmerge_var2_5400430076534809439
+

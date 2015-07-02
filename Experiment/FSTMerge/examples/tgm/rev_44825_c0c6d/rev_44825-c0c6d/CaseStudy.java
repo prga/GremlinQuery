@@ -1,0 +1,18 @@
+  class  CaseStudy {
+	
+	
+	
+
+	
+	
+	
+
+	
+	
+	
+
+	
+	int y;
+
+
+}

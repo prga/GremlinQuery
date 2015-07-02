@@ -1,0 +1,26 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771094337/fstmerge_var1_1715974371217257720
+namespace Nancy
+{
+    using System;
+    using System.IO;
+
+    public interface INancyApplication
+    {
+        Func<string, object, Action<Stream>> GetTemplateProcessor(string extension);
+        Func<string, object, Action<Stream>> DefaultProcessor { get; }
+    }
+}=======
+namespace Nancy
+{
+    using System;    
+    using System.IO;
+
+    public interface INancyApplication : INancyModuleLocator
+    {
+        Func<string, object, Action<Stream>> GetTemplateProcessor(string extension);
+        Func<string, object, Action<Stream>> DefaultProcessor { get; }
+
+        IModuleActivator Activator { get; }
+    }
+}>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771094337/fstmerge_var2_3082492941537938888
+

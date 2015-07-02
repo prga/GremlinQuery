@@ -1,0 +1,100 @@
+./rev_0daf3_16a40/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 1049
+LOC without comments: 724
+Unstructured merge
+(1, 1, 2, 0, 1, 1)
+LOC with comments: 814
+LOC without comments: 725
+
+./rev_326b8_6d39c/result
+Semistructured merge
+(100, 2739, 658, 5, 66, 49)
+LOC with comments: 21335
+LOC without comments: 15575
+Unstructured merge
+(135, 8521, 886, 0, 66, 60)
+LOC with comments: 19968
+LOC without comments: 17459
+
+./rev_479de_4b99c/result
+Semistructured merge
+(3, 12, 6, 0, 3, 3)
+LOC with comments: 1217
+LOC without comments: 922
+Unstructured merge
+(3, 12, 6, 0, 3, 3)
+LOC with comments: 1052
+LOC without comments: 918
+
+./rev_5cb86_40e6a/result
+Semistructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 665
+LOC without comments: 484
+Unstructured merge
+(1, 1, 0, 0, 1, 1)
+LOC with comments: 550
+LOC without comments: 487
+
+./rev_5d010_18d30/result
+Semistructured merge
+(3, 0, 206, 0, 19, 2)
+LOC with comments: 1907
+LOC without comments: 1123
+Unstructured merge
+(19, 0, 1850, 0, 19, 19)
+LOC with comments: 2193
+LOC without comments: 1888
+
+./rev_76c84_4eac8/result
+Semistructured merge
+(1, 3, 1, 0, 1, 1)
+LOC with comments: 180
+LOC without comments: 138
+Unstructured merge
+(1, 3, 1, 0, 1, 1)
+LOC with comments: 167
+LOC without comments: 138
+
+./rev_820af_64ebe/result
+Semistructured merge
+(1, 6, 0, 3, 2, 1)
+LOC with comments: 153
+LOC without comments: 69
+Unstructured merge
+(2, 170, 0, 0, 2, 2)
+LOC with comments: 208
+LOC without comments: 174
+
+./rev_87913_7be8d/result
+Semistructured merge
+(1, 22, 0, 0, 1, 1)
+LOC with comments: 80
+LOC without comments: 62
+Unstructured merge
+(1, 66, 0, 0, 1, 1)
+LOC with comments: 80
+LOC without comments: 68
+
+./rev_a7152_eafd8/result
+Semistructured merge
+(3, 188, 0, 0, 2, 2)
+LOC with comments: 1005
+LOC without comments: 641
+Unstructured merge
+(3, 238, 1, 0, 2, 2)
+LOC with comments: 679
+LOC without comments: 589
+
+./rev_fd8db_47eaf/result
+Semistructured merge
+(2, 52, 0, 0, 2, 2)
+LOC with comments: 180
+LOC without comments: 130
+Unstructured merge
+(2, 164, 0, 0, 2, 2)
+LOC with comments: 190
+LOC without comments: 168
+

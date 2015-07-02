@@ -1,0 +1,100 @@
+./rev_34fc3_4cecb/result
+Semistructured merge
+(0, 0, 0, 2, 1, 0)
+LOC with comments: 99
+LOC without comments: 41
+Unstructured merge
+(1, 2, 2, 0, 1, 1)
+LOC with comments: 46
+LOC without comments: 36
+
+./rev_38f18_a8fd1/result
+Semistructured merge
+(0, 0, 0, 0, 0, 0)
+LOC with comments: 0
+LOC without comments: 0
+Unstructured merge
+(3, 7, 5, 0, 1, 1)
+LOC with comments: 460
+LOC without comments: 394
+
+./rev_39499_d0c7a/result
+Semistructured merge
+(0, 0, 0, 2, 1, 0)
+LOC with comments: 99
+LOC without comments: 41
+Unstructured merge
+(1, 2, 2, 0, 1, 1)
+LOC with comments: 46
+LOC without comments: 36
+
+./rev_50429_e0ccb/result
+Semistructured merge
+(0, 0, 0, 2, 1, 0)
+LOC with comments: 65
+LOC without comments: 27
+Unstructured merge
+(1, 2, 2, 0, 1, 1)
+LOC with comments: 33
+LOC without comments: 26
+
+./rev_66053_b23af/result
+Semistructured merge
+(0, 0, 0, 2, 1, 0)
+LOC with comments: 66
+LOC without comments: 27
+Unstructured merge
+(1, 2, 2, 0, 1, 1)
+LOC with comments: 34
+LOC without comments: 26
+
+./rev_864a7_48729/result
+Semistructured merge
+(2, 0, 22, 1, 3, 2)
+LOC with comments: 414
+LOC without comments: 177
+Unstructured merge
+(9, 101, 77, 0, 3, 3)
+LOC with comments: 915
+LOC without comments: 773
+
+./rev_aadf7_c7f82/result
+Semistructured merge
+(0, 0, 0, 0, 0, 0)
+LOC with comments: 0
+LOC without comments: 0
+Unstructured merge
+(4, 34, 32, 0, 2, 2)
+LOC with comments: 203
+LOC without comments: 172
+
+./rev_abda5_89950/result
+Semistructured merge
+(0, 0, 0, 1, 1, 0)
+LOC with comments: 326
+LOC without comments: 164
+Unstructured merge
+(0, 0, 0, 0, 1, 0)
+LOC with comments: 208
+LOC without comments: 148
+
+./rev_d15a9_61ab9/result
+Semistructured merge
+(0, 0, 0, 2, 1, 0)
+LOC with comments: 99
+LOC without comments: 41
+Unstructured merge
+(1, 2, 2, 0, 1, 1)
+LOC with comments: 46
+LOC without comments: 36
+
+./rev_f54d5_50b65/result
+Semistructured merge
+(0, 0, 0, 0, 0, 0)
+LOC with comments: 0
+LOC without comments: 0
+Unstructured merge
+(1, 0, 0, 0, 1, 1)
+LOC with comments: 59
+LOC without comments: 42
+

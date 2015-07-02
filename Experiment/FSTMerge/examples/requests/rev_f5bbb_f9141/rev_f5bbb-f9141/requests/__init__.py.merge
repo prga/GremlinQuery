@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+
+#   __
+#  /__)  _  _     _   _ _/   _
+# / (   (- (/ (/ (- _)  /  _)
+#          /
+
+"""
+requests
+~~~~~~~~
+
+:copyright: (c) 2011 by Kenneth Reitz.
+:license: ISC, see LICENSE for more details.
+
+"""
+
+__title__ = 'requests'
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855749243/fstmerge_var1_9029427663009601151
+__version__ = '0.7.6'
+__build__ = 0x000706
+=======
+__version__ = '0.8.0'
+__build__ = 0x000800
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855749243/fstmerge_var2_7919306690560496956
+__author__ = 'Kenneth Reitz'
+__license__ = 'ISC'
+__copyright__ = 'Copyright 2011 Kenneth Reitz'
+
+
+from . import utils
+from .models import Request, Response
+from .api import request, get, head, post, patch, put, delete
+from .sessions import session
+from .status_codes import codes
+from .exceptions import (
+    RequestException, AuthenticationError, Timeout, URLRequired,
+    TooManyRedirects, HTTPError
+)
+

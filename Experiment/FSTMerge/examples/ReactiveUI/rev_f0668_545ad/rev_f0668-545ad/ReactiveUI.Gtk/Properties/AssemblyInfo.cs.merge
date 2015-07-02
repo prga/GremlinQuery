@@ -1,0 +1,14 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855417781/fstmerge_var1_8644163159959214740
+using System.Reflection;
+using System.Runtime.CompilerServices;
+
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("ReactiveUI.Gtk")]
+[assembly: AssemblyDescription("Gtk# support for ReactiveUI")]
+[assembly: AssemblyProduct("ReactiveUI.Gtk")]
+
+[assembly: AssemblyVersion("4.6.3")]=======
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855417781/fstmerge_var2_3878841027992364245
+

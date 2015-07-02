@@ -1,0 +1,32 @@
+namespace Nancy.Hosting
+{
+    using System.Web;
+    using Routing;
+
+    public class NancyHttpRequestHandler : IHttpHandler
+    {
+        private readonly static INancyApplication application = new NancyApplication();
+
+        public bool IsReusable
+        {
+            get { return false; }
+        }
+
+        public void ProcessRequest(HttpContext context)
+        {
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771094487/fstmerge_var1_4060712742902462481
+            var engine = new NancyEngine(
+                CreateModuleLocator(),
+                new RouteResolver(),
+                application);
+=======
+            var engine = new NancyEngine(application, new RouteResolver(), application);
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771094487/fstmerge_var2_2469228599268955404
+
+            var wrappedContext = new HttpContextWrapper(context);
+            var handler = new NancyHandler(engine);
+            handler.ProcessRequest(wrappedContext);
+        }        
+    }
+}
+

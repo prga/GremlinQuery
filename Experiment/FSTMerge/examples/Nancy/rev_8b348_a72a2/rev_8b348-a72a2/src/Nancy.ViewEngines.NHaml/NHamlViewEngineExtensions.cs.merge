@@ -1,0 +1,50 @@
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390770875894/fstmerge_var1_6626665956340457923
+namespace Nancy.ViewEngines.NHaml
+{
+    using System;
+    using System.IO;
+
+    public static class NHamlViewEngineExtensions
+    {
+        public static Action<Stream> Haml(this IViewEngine source, string name)
+        {
+            return Haml(source, name, (object) null);
+        }
+
+        public static Action<Stream> Haml<TModel>(this IViewEngine source, string name, TModel model)
+        {
+            var viewEngine = new NHamlViewEngine();
+
+            return stream =>
+            {
+                var result = viewEngine.RenderView(name, model);
+                result.Execute(stream);
+            };
+        }
+    }
+}=======
+namespace Nancy.ViewEngines.NHaml
+{
+    using System;
+    using System.IO;
+
+    public static class NHamlViewEngineExtensions
+    {
+        public static Action<Stream> Haml(this IViewEngine source, string name)
+        {
+            return Haml(source, name, (object) null);
+        }
+
+        public static Action<Stream> Haml<TModel>(this IViewEngine source, string name, TModel model)
+        {
+            var viewEngine = new NHamlViewEngine();
+
+            return stream =>
+                       {
+                           var result = viewEngine.RenderView(name, model);
+                           result.Execute(stream);
+                       };
+        }
+    }
+}>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390770875894/fstmerge_var2_3314532258987524682
+

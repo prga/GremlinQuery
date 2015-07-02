@@ -1,0 +1,109 @@
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.md in the project root for license information.
+
+using System;
+using System.Threading;
+
+namespace Microsoft.AspNet.SignalR.Infrastructure
+{
+    internal static class CancellationTokenExtensions
+    {
+        public static IDisposable SafeRegister(this CancellationToken cancellationToken, Action<object> callback, object state)
+        {
+            var callbackWrapper = new CancellationCallbackWrapper(callback, state);
+
+            try
+            {
+                // Ensure delegate continues to use the C# Compiler static delegate caching optimization.
+                CancellationTokenRegistration registration = cancellationToken.Register(s => Cancel(s),
+                                                                                        callbackWrapper,
+                                                                                        useSynchronizationContext: false);
+
+                var disposeCancellationState = new DiposeCancellationState(callbackWrapper, registration);
+
+                // Ensure delegate continues to use the C# Compiler static delegate caching optimization.
+                return new DisposableAction(s => Dispose(s), disposeCancellationState);
+            }
+            catch (ObjectDisposedException)
+            {
+                callbackWrapper.TryInvoke();
+            }
+
+            // Noop
+            return DisposableAction.Empty;
+        }
+
+        private static void Cancel(object state)
+        {
+            ((CancellationCallbackWrapper)state).TryInvoke();
+        }
+
+        private static void Dispose(object state)
+        {
+            ((DiposeCancellationState)state).TryDispose();
+        }
+
+        private class DiposeCancellationState
+        {
+            private readonly CancellationCallbackWrapper _callbackWrapper;
+            private readonly CancellationTokenRegistration _registration;
+
+            public DiposeCancellationState(CancellationCallbackWrapper callbackWrapper, CancellationTokenRegistration registration)
+            {
+                _callbackWrapper = callbackWrapper;
+                _registration = registration;
+            }
+
+            public void TryDispose()
+            {
+                if (_callbackWrapper.TrySetInvoked())
+                {
+                    // This normally waits until the callback is finished invoked but we don't care
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390857725148/fstmerge_var1_5276350145105835426
+                    if (Interlocked.Exchange(ref callbackInvoked, 1) == 0)
+                    {
+                        try
+                        {
+                            registration.Dispose();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // Bug #1549, .NET 4.0 has a bug where this throws if the CTS
+                            // has been disposed
+                        }
+                    }
+                });
+=======
+                    _registration.Dispose();
+                }
+            }
+        }
+
+        private class CancellationCallbackWrapper
+        {
+            private readonly Action<object> _callback;
+            private readonly object _state;
+            private int _callbackInvoked;
+
+            public CancellationCallbackWrapper(Action<object> callback, object state)
+            {
+                _callback = callback;
+                _state = state;
+            }
+
+            public bool TrySetInvoked()
+            {
+                return Interlocked.Exchange(ref _callbackInvoked, 1) == 0;
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390857725148/fstmerge_var2_3274308481553668332
+            }
+
+            public void TryInvoke()
+            {
+                if (TrySetInvoked())
+                {
+                    _callback(_state);
+                }
+            }
+        }
+    }
+}
+

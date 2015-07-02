@@ -1,0 +1,10 @@
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+
+[assembly: AssemblyDescription("An MVVM framework that integrates the Reactive Extensions")]
+[assembly: AssemblyProduct("ReactiveUI.Android")]
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855266494/fstmerge_var1_4518002027806486959
+[assembly: AssemblyVersion("4.6.1")]=======
+[assembly: AssemblyVersion("5.0.0")]>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855266494/fstmerge_var2_1155114097785393334
+

@@ -1,0 +1,9 @@
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyDescription("An MVVM framework that integrates the Reactive Extensions")]
+[assembly: AssemblyProduct("ReactiveUI for Expression Blend")]
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282377/fstmerge_var1_2608088662060321459
+[assembly: AssemblyVersion("4.6.4")]=======
+[assembly: AssemblyVersion("5.0.0")]>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282377/fstmerge_var2_3952241254205320730
+

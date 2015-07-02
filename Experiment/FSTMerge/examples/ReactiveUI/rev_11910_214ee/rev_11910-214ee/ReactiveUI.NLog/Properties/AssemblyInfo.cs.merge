@@ -1,0 +1,9 @@
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyDescription("NLog Adapter for ReactiveUI Logging")]
+[assembly: AssemblyProduct("ReactiveUI")]
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282484/fstmerge_var1_165951152822867853
+[assembly: AssemblyVersion("4.6.4")]=======
+[assembly: AssemblyVersion("5.0.0")]>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855282484/fstmerge_var2_8690332081786681018
+

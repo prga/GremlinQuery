@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2007 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390148808729/fstmerge_var1_9135555223494631590
+package org.mockito.internal.debugging;
+=======
+package org.mockito.internal.debugging;
+
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390148808729/fstmerge_var2_5148695656532509304
+
+import org.mockito.invocation.Location;
+
+public class Localized<T> {
+
+    private final T object;
+    private final Location location;
+
+    public Localized(T object) {
+        this.object = object;
+        location = new LocationImpl();
+    }
+
+    public T getObject() {
+        return object;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+}
+

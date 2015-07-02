@@ -1,0 +1,21 @@
+1.
+See AllRevisions.txt
+
+2.
+./writeAllResults-JAVA.sh ../examples/mockito
+./writeAllResults-JAVA.sh ../examples/dropwizard
+./writeAllResults-JAVA.sh ../examples/netty
+./writeAllResults-JAVA.sh ../examples/RxJava
+
+./writeAllResults-PY.sh ../examples/flask
+./writeAllResults-PY.sh ../examples/requests
+./writeAllResults-PY.sh ../examples/scrapy
+
+./writeAllResults-CS.sh ../examples/Nancy
+./writeAllResults-CS.sh ../examples/ReactiveUI
+./writeAllResults-CS.sh ../examples/SignalR
+
+
+3.
+R -f Percentages.R
+R -f Diagrams.R

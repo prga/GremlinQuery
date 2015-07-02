@@ -1,0 +1,21 @@
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+
+[assembly: AssemblyDescription("An MVVM framework that integrates the Reactive Extensions")]
+[assembly: AssemblyProduct("ReactiveUI")]
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855417345/fstmerge_var1_155835035881781506
+[assembly: AssemblyVersion("4.6.3")]
+=======
+[assembly: AssemblyVersion("5.0.0")]
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390855417345/fstmerge_var2_3717747454453832976
+
+[assembly: InternalsVisibleTo("ReactiveUI.Xaml")]
+[assembly: InternalsVisibleTo("ReactiveUI.Tests_Net45")]
+[assembly: InternalsVisibleTo("ReactiveUI.Tests_WinRT")]
+[assembly: InternalsVisibleTo("ReactiveUI.NLog")]
+[assembly: InternalsVisibleTo("ReactiveUI.Gtk")]
+[assembly: InternalsVisibleTo("ReactiveUI.Cocoa")]
+[assembly: InternalsVisibleTo("ReactiveUI.Android")]
+[assembly: InternalsVisibleTo("ReactiveUI.Mobile")]
+

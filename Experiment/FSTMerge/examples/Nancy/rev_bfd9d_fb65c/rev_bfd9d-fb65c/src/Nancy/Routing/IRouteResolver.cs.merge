@@ -1,0 +1,24 @@
+﻿namespace Nancy.Routing
+{
+    using System;
+    using ResolveResult = System.Tuple<Nancy.Routing.Route, DynamicDictionary, System.Func<NancyContext, Response>, System.Action<NancyContext>, System.Func<NancyContext, System.Exception, Response>>;
+
+    /// <summary>
+    /// Returns a route that matches the request
+    /// </summary>
+    public interface IRouteResolver
+    {
+        /// <summary>
+        /// Gets the route, and the corresponding parameter dictionary from the URL
+        /// </summary>
+        /// <param name="context">Current context</param>
+<<<<<<< /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771173739/fstmerge_var1_2030075521261030158
+        /// <returns>Tuple - Item1 being the Route, Item2 being the parameters dictionary, Item3 being the prereq, Item4 being the postreq, Item5 being the error handler</returns>
+        Tuple<Route, DynamicDictionary, Func<NancyContext, Response>, Action<NancyContext>, Func<NancyContext, Exception, Response>> Resolve(NancyContext context);
+=======
+        /// <returns>Tuple - Item1 being the Route, Item2 being the parameters dictionary, Item3 being the prereq, Item4 being the postreq, Item5 being the error handler</returns>
+        ResolveResult Resolve(NancyContext context);
+>>>>>>> /mnt/Vbox/FSTMerge/binary/fstmerge_tmp1390771173739/fstmerge_var2_1844208336701390397
+    }
+}
+
