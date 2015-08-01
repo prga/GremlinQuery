@@ -44,6 +44,8 @@ class Extractor {
 
 	private ArrayList<String> missingUnknown
 
+	Hashtable<String, Integer> revisionFiles
+
 	public Extractor(GremlinProject project, String projectsDirectory){
 		this.project			= project
 		this.listMergeCommit 	= this.project.listMergeCommit
@@ -53,16 +55,16 @@ class Extractor {
 		this.CONFLICTS 			= 0
 		this.missingUnknown = new ArrayList<MergeCommit>()
 		this.removeOldRevisionFile()
-		
+		this.revisionFiles = new Hashtable<String, Integer>()
 		this.setup()
 	}
-	
+
 	public void removeOldRevisionFile(){
 		def out = new File("ResultData" + File.separator + this.project.name + File.separator + 'RevisionsFiles.csv')
 		out.delete()
-		
+
 	}
-	
+
 	def cloneRepository(){
 		// prepare a new folder for the cloned repository
 		File gitWorkDir = new File(repositoryDir)
@@ -143,63 +145,63 @@ class Extractor {
 		println "Reseted sucessfully to: " + resetResult.getName()
 	}
 
-		def runAllFiles(parent1, parent2) {
-			// folder of the revisions being tested
-			def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
-			try{
-				// opening the working directory
-				this.git = openRepository();
-				// git reset --hard SHA1_1
-				this.resetCommand(this.git, parent1)
-				// copy files for parent1 revision
-				def destinationDir = allRevFolder + "/rev_left_" + parent1.substring(0, 5)
-				this.copyFiles(this.repositoryDir, destinationDir, "")
-				// git clean -f
-				CleanCommand cleanCommandgit = this.git.clean()
-				cleanCommandgit.call()
-				// git checkout -b new SHA1_2
-				def refNew = checkoutAndCreateBranch("new", parent2)
-				// copy files for parent2 revision
-				destinationDir = allRevFolder + "/rev_right_" + parent2.substring(0, 5)
-				def excludeDir	= "**/" + allRevFolder + "/**"
+	def runAllFiles(parent1, parent2) {
+		// folder of the revisions being tested
+		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+		try{
+			// opening the working directory
+			this.git = openRepository();
+			// git reset --hard SHA1_1
+			this.resetCommand(this.git, parent1)
+			// copy files for parent1 revision
+			def destinationDir = allRevFolder + "/rev_left_" + parent1.substring(0, 5)
+			this.copyFiles(this.repositoryDir, destinationDir, "")
+			// git clean -f
+			CleanCommand cleanCommandgit = this.git.clean()
+			cleanCommandgit.call()
+			// git checkout -b new SHA1_2
+			def refNew = checkoutAndCreateBranch("new", parent2)
+			// copy files for parent2 revision
+			destinationDir = allRevFolder + "/rev_right_" + parent2.substring(0, 5)
+			def excludeDir	= "**/" + allRevFolder + "/**"
+			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+			// git checkout master
+			checkoutMasterBranch()
+			// git merge new
+			MergeCommand mergeCommand = this.git.merge()
+			mergeCommand.include(refNew)
+			MergeResult res = mergeCommand.call()
+			if (res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
+				CONFLICTS = CONFLICTS + 1
+				println "Revision Base: " + res.getBase().toString()
+				println "Conflitcts: " + res.getConflicts().toString()
+				printConflicts(res)
+				// git reset --hard BASE
+				def revBase = (res.getBase().toString()).split()[1]
+				this.resetCommand(this.git, revBase)
+				// copy files for base revision
+				destinationDir = allRevFolder + "/rev_base_" + revBase.substring(0, 5)
 				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
-				// git checkout master
-				checkoutMasterBranch()
-				// git merge new
-				MergeCommand mergeCommand = this.git.merge()
-				mergeCommand.include(refNew)
-				MergeResult res = mergeCommand.call()
-				if (res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
-					CONFLICTS = CONFLICTS + 1
-					println "Revision Base: " + res.getBase().toString()
-					println "Conflitcts: " + res.getConflicts().toString()
-					printConflicts(res)
-					// git reset --hard BASE
-					def revBase = (res.getBase().toString()).split()[1]
-					this.resetCommand(this.git, revBase)
-					// copy files for base revision
-					destinationDir = allRevFolder + "/rev_base_" + revBase.substring(0, 5)
-					this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
-					// the input revisions listed in a file
-					this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
-				} else {
+				// the input revisions listed in a file
+				this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
+			} else {
 				// keeping only the conflicting revisions
 				this.deleteFiles(allRevFolder)
-				}
-				// avoiding references issues
-				this.deleteBranch("new")
-			} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
+			}
+			// avoiding references issues
+			this.deleteBranch("new")
+		} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
 			println "ERROR: " + e
 			// reseting
 			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 			println "Trying again..."
-			} finally {
+		} finally {
 			println "Closing git repository..."
 			// closing git repository
 			this.git.getRepository().close()
-			}
 		}
+	}
 
 	def runOnlyConflicts(parent1, parent2) {
 		// folder of the revisions being tested
@@ -266,7 +268,7 @@ class Extractor {
 			org.eclipse.jgit.api.errors.JGitInternalException,
 			org.eclipse.jgit.dircache.InvalidPathException,
 			org.eclipse.jgit.api.errors.RefNotFoundException,
-			java.lang.NullPointerException  {
+	java.lang.NullPointerException  {
 
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
@@ -387,26 +389,26 @@ class Extractor {
 	}
 
 	def copyFiles(String sourceDir, String destinationDir, ArrayList<String> listConflicts){
-        AntBuilder ant = new AntBuilder()
-        listConflicts.each {
-            def folder = it.split("/")
-            def fileName = folder[(folder.size()-1)]
-            if(fileName.contains(".")){
-                def fileNameSplitted = fileName.split("\\.")
-                def fileExt = fileName.split("\\.")[fileNameSplitted.size() -1]
-                if(canCopy(fileExt)){
-                    folder = destinationDir + "/" + (Arrays.copyOfRange(folder, 0, folder.size()-1)).join("/")
-                    String file = "**/" + it
-                    ant.mkdir(dir:folder)
-                    ant.copy(todir: destinationDir) {
-                        fileset(dir: sourceDir){
-                            include(name:file)
-                        }
-                    }
-                }
-            }
-        }
-    }
+		AntBuilder ant = new AntBuilder()
+		listConflicts.each {
+			def folder = it.split("/")
+			def fileName = folder[(folder.size()-1)]
+			if(fileName.contains(".")){
+				def fileNameSplitted = fileName.split("\\.")
+				def fileExt = fileName.split("\\.")[fileNameSplitted.size() -1]
+				if(canCopy(fileExt)){
+					folder = destinationDir + "/" + (Arrays.copyOfRange(folder, 0, folder.size()-1)).join("/")
+					String file = "**/" + it
+					ant.mkdir(dir:folder)
+					ant.copy(todir: destinationDir) {
+						fileset(dir: sourceDir){
+							include(name:file)
+						}
+					}
+				}
+			}
+		}
+	}
 
 	def boolean canCopy(String fileName){
 		boolean can = false
@@ -421,10 +423,11 @@ class Extractor {
 	}
 
 	def writeRevisionsFile(String leftRev, String rightRev, String baseRev, String dir){
+
 		try{
 			def filePath = dir + "/rev_" + leftRev + "-" + rightRev + ".revisions"
 			def out = new File(filePath)
-			
+
 			this.writeRevisionsFilePathsFile(filePath)
 			// deleting old files if it exists
 			out.delete()
@@ -438,26 +441,22 @@ class Extractor {
 			row = "rev_right_" + rightRev
 			out.append row
 			out.append '\n'
-		
+
 		}catch(Exception e){} //The file is not created, and just return
+
 	}
-	
-	def writeRevisionsFilePathsFile(String filePath){
-		try {
-			def out = new File("ResultData" + File.separator + this.project.name + File.separator + 'RevisionsFiles.csv')
-			def row = filePath + '\n'
-			out.append(row)
-		} catch (Exception e) {
-			//The file is not created, and just return
-		}
+
+	private void writeRevisionsFilePathsFile(String filePath){
+		this.revisionFiles.put(filePath, 0)
+
 	}
-	
+
 	public String getRevisionFile(){
 		String current = new java.io.File( "." ).getCanonicalPath();
 		String filePath = current + File.separator + "ResultData" + File.separator + this.project.name + File.separator +'RevisionsFiles.csv'
 		return filePath
 	}
-	
+
 	def setup(){
 		println "Setupping..."
 		// keeping a backup dir
@@ -478,6 +477,7 @@ class Extractor {
 		def iterationCounter = 1
 		Iterator ite = this.listMergeCommit.iterator()
 		MergeCommit mc = null
+
 		while(ite.hasNext()){
 			mc = (MergeCommit)ite.next()
 			println ("Running " + iterationCounter + "/" + this.listMergeCommit.size())
@@ -485,84 +485,97 @@ class Extractor {
 			// the commits to checkout
 			def SHA_1 = mc.parent1
 			def SHA_2 = mc.parent2
-			
+
 			//FUTURE VARIATION POINT
 			//if you wan't to catch only the false positives use these
 			//this.runAllFiles(SHA_1, SHA_2)
 			//elseif you wan't to download all merges
-			
-	
-				def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
-				if(ancestorSHA != null){
+
+
+			def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
+			if(ancestorSHA != null){
 				this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
-				}else{
+
+			}else{
 				println('commit sha:' + mc.getSha() + ' returned null on common ancestor search.')
-				}
-			
-			
-			
+			}
+
+
+
 			//endif
-			
+
 			println "----------------------"
 			iterationCounter++
 		}
+		this.printRevisionFiles()
 		println ("Number of conflicts: " + CONFLICTS)
 	}
-	
-	
-	def downloadAllFiles(parent1, parent2, ancestor) {
+
+	private void printRevisionFiles(){
+		String temp = "ResultData" + File.separator + this.project.name +
+				File.separator + 'RevisionsFiles.csv'
+		File file = new File(temp)
+		
+		for(String s : this.revisionFiles.keySet()){
+			String line = s + '\n'
+			file.append(line)
+		}
+
+	}
+	private String downloadAllFiles(parent1, parent2, ancestor) {
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+		String result = ''
 		try{
 			// opening the working directory
 			this.git = openRepository();
 			// git reset --hard SHA1_1
 			this.resetCommand(this.git, parent1)
-			
+
 			// copy files for parent1 revision
 			def destinationDir = allRevFolder + "/rev_left_" + parent1.substring(0, 5)
-			
+
 			this.copyFiles(this.repositoryDir, destinationDir, "")
 			def rec = new RecursiveFileList()
 			rec.removeFiles(new File(destinationDir))
-			
+
 			// git clean -f
 			CleanCommand cleanCommandgit = this.git.clean()
 			cleanCommandgit.call()
-			
+
 			// git checkout -b new SHA1_2
 			def refNew = checkoutAndCreateBranch("new", parent2)
 			// copy files for parent2 revision
 			destinationDir = allRevFolder + "/rev_right_" + parent2.substring(0, 5)
 			def excludeDir	   = "**/" + allRevFolder + "/**"
-			
+
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 			rec.removeFiles(new File(destinationDir))
-			
-			
+
+
 			cleanCommandgit = this.git.clean()
 			cleanCommandgit.call()
 			// git checkout -b ancestor ANCESTOR
-			
+
 			checkoutMasterBranch()
 			cleanCommandgit = this.git.clean()
 			cleanCommandgit.call()
-			
+
 			def refAncestor = checkoutAndCreateBranch("ancestor", ancestor)
 			// copy files for ancestor revision
 			destinationDir = allRevFolder + "/rev_base_" + ancestor.substring(0, 5)
 			excludeDir	   = "**/" + allRevFolder + "/**"
-			
+
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 			rec.removeFiles(new File(destinationDir))
-			
-			this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), 
-				ancestor.substring(0, 5), allRevFolder)
+
+			this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
+					ancestor.substring(0, 5), allRevFolder)
 			// avoiding references issues
 			checkoutMasterBranch()
 			this.deleteBranch("ancestor")
 			this.deleteBranch("new")
-			
+
 		} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
 			println "ERROR: " + e
 			// reseting
@@ -587,36 +600,37 @@ class Extractor {
 			// closing git repository
 			this.git.getRepository().close()
 		}
+		return result
 	}
-	
-	 String findCommonAncestor(parent1, parent2){
-		 
-		 String ancestor = null
-		 this.git = openRepository()
-		 
-		 RevWalk walk = new RevWalk(this.git.getRepository())
-		 walk.setRetainBody(false)
-		 walk.setRevFilter(RevFilter.MERGE_BASE)
-		 walk.reset()
-		 
-		 ObjectId shaParent1 = ObjectId.fromString(parent1)
-		 ObjectId shaParent2 = ObjectId.fromString(parent2)
-		 ObjectId commonAncestor = null
-		 
-		 try {
-			 walk.markStart(walk.parseCommit(shaParent1))
-			 walk.markStart(walk.parseCommit(shaParent2))
-			 commonAncestor = walk.next()
+
+	String findCommonAncestor(parent1, parent2){
+
+		String ancestor = null
+		this.git = openRepository()
+
+		RevWalk walk = new RevWalk(this.git.getRepository())
+		walk.setRetainBody(false)
+		walk.setRevFilter(RevFilter.MERGE_BASE)
+		walk.reset()
+
+		ObjectId shaParent1 = ObjectId.fromString(parent1)
+		ObjectId shaParent2 = ObjectId.fromString(parent2)
+		ObjectId commonAncestor = null
+
+		try {
+			walk.markStart(walk.parseCommit(shaParent1))
+			walk.markStart(walk.parseCommit(shaParent2))
+			commonAncestor = walk.next()
 		} catch (Exception e) {
 			e.printStackTrace()
 		}
-		
-		 if(commonAncestor != null){
+
+		if(commonAncestor != null){
 			ancestor = commonAncestor.toString()substring(7, 47)
 			println('The common ancestor is: ' + ancestor)
-		 }
-		 
-		 this.git.getRepository().close()
+		}
+
+		this.git.getRepository().close()
 		return ancestor
 	}
 
@@ -627,9 +641,9 @@ class Extractor {
 			renameCommand.setNewName("master")
 			renameCommand.call()
 		}
-	}	
-	 
-	 
+	}
+
+
 	static void main (String[] args){
 		//		//testing
 		//		MergeCommit mc = new MergeCommit()
@@ -640,15 +654,15 @@ class Extractor {
 		//		ArrayList<MergeCommit> lm = new ArrayList<MergeCommit>()
 		//		lm.add(mc)
 		//
-			GremlinProject p = new GremlinProject()
-			p.name = "orientdb"
-			p.url = "https://github.com/orientechnologies/orientdb.git"
-			p.graph = "C:/Users/Guilherme/Documents/workspace/gitminer-master/gitminer-master/graph.db_30-10"
-		
-			Extractor ex = new Extractor(p,"/Users/paolaaccioly/Documents/Doutorado/temp/orientdb")
-				String base = ex.findCommonAncestor("98f95d085f0026055792c70295787e38df99e654", "9aa13e5348e9e05812ddddf55bac7a0eeb39598c")
-				println base
-		
-		
+		GremlinProject p = new GremlinProject()
+		p.name = "orientdb"
+		p.url = "https://github.com/orientechnologies/orientdb.git"
+		p.graph = "C:/Users/Guilherme/Documents/workspace/gitminer-master/gitminer-master/graph.db_30-10"
+
+		Extractor ex = new Extractor(p,"/Users/paolaaccioly/Documents/Doutorado/temp/orientdb")
+		String base = ex.findCommonAncestor("98f95d085f0026055792c70295787e38df99e654", "9aa13e5348e9e05812ddddf55bac7a0eeb39598c")
+		println base
+
+
 	}
 }

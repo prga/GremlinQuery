@@ -45,7 +45,7 @@ class RecursiveFileList {
 	
 	public static void main (String[] args){
 		
-		File file = new File("/Users/paolaaccioly/gitClones/TGM/")
+		File file = new File("/Users/paolaaccioly/Desktop/Teste/rev_6b959_8ceae/rev_right_8ceae")
 		RecursiveFileList rec = new RecursiveFileList()
 	
 		rec.removeFiles(file)
