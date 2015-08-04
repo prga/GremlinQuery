@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 class GremlinPrinter {
 	
-	public void writeCSV(ArrayList<MergeCommit> listMC){
-		
-		def out = new File('commits.csv')
+	public static void writeCSV(ArrayList<MergeCommit> listMC, String projectName){
+		String filepath = 'ResultData' + File.separator + projectName + File.separator  + 'mergeCommits.csv'
+		def out = new File(filepath)
 		
 		// deleting old files if it exists
 		out.delete()
 		
-		out = new File('commits.csv')
+		out = new File(filepath)
 		
 		def firstRow = ["Merge commit", "Parent 1", "Parent 2"]
 		out.append firstRow.join(',')

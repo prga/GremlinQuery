@@ -148,6 +148,7 @@ class GremlinQueryApp {
 		GremlinProject project = new GremlinProject(projectName, projectRepo, graphBase)
 		GremlinQuery gq = new GremlinQuery(project.graph)
 		project.listMergeCommit = gq.mergeCommitsList
+		GremlinPrinter.writeCSV(project.listMergeCommit, projectName)
 		gq.shutdownExistingGraph()
 		Extractor e = new Extractor(project, downloadPath)
 		e.extractCommits()
