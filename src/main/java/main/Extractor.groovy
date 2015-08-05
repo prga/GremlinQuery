@@ -44,7 +44,7 @@ class Extractor {
 
 	private ArrayList<String> missingUnknown
 
-	Hashtable<String, Integer> revisionFiles
+	ArrayList<String> revisionFiles
 
 	public Extractor(GremlinProject project, String projectsDirectory){
 		this.project			= project
@@ -422,13 +422,13 @@ class Extractor {
 		(new AntBuilder()).delete(dir:dir,failonerror:false)
 	}
 
-	def writeRevisionsFile(String leftRev, String rightRev, String baseRev, String dir){
-
+	private String writeRevisionsFile(String leftRev, String rightRev, String baseRev, String dir){
+		String filePath = ''
 		try{
-			def filePath = dir + "/rev_" + leftRev + "-" + rightRev + ".revisions"
+			filePath = dir + "/rev_" + leftRev + "-" + rightRev + ".revisions"
 			def out = new File(filePath)
 
-			this.writeRevisionsFilePathsFile(filePath)
+
 			// deleting old files if it exists
 			out.delete()
 			out = new File(filePath)
@@ -443,12 +443,7 @@ class Extractor {
 			out.append '\n'
 
 		}catch(Exception e){} //The file is not created, and just return
-
-	}
-
-	private void writeRevisionsFilePathsFile(String filePath){
-		this.revisionFiles.put(filePath, 0)
-
+		return filePath
 	}
 
 	public String getRevisionFile(){
@@ -473,18 +468,11 @@ class Extractor {
 		new AntBuilder().copy(todir:this.projectsDirectory+this.project.name+"/git") {fileset(dir:this.projectsDirectory + "/temp/" + this.project.name+"/git" , defaultExcludes: false){}}
 	}
 
-	def extractCommits(){
-		def iterationCounter = 1
-		Iterator ite = this.listMergeCommit.iterator()
-		MergeCommit mc = null
-
-		while(ite.hasNext()){
-			mc = (MergeCommit)ite.next()
-			println ("Running " + iterationCounter + "/" + this.listMergeCommit.size())
-
+	public 	String extractCommit(MergeCommit mergeCommit){
+			String revisionFile = ''
 			// the commits to checkout
-			def SHA_1 = mc.parent1
-			def SHA_2 = mc.parent2
+			def SHA_1 = mergeCommit.parent1
+			def SHA_2 = mergeCommit.parent2
 
 			//FUTURE VARIATION POINT
 			//if you wan't to catch only the false positives use these
@@ -494,34 +482,25 @@ class Extractor {
 
 			def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
 			if(ancestorSHA != null){
-				this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
-
+			revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
+			this.printRevisionFiles(revisionFile)
 			}else{
-				println('commit sha:' + mc.getSha() + ' returned null on common ancestor search.')
+				println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
 			}
 
-
-
-			//endif
-
-			println "----------------------"
-			iterationCounter++
-		}
-		this.printRevisionFiles()
-		println ("Number of conflicts: " + CONFLICTS)
+		return revisionFile
 	}
 
-	private void printRevisionFiles(){
+	private void printRevisionFiles(String s){
 		String temp = "ResultData" + File.separator + this.project.name +
 				File.separator + 'RevisionsFiles.csv'
 		File file = new File(temp)
 		
-		for(String s : this.revisionFiles.keySet()){
-			String line = s + '\n'
-			file.append(line)
-		}
+		String line = s + '\n'
+		file.append(line)
 
 	}
+	
 	private String downloadAllFiles(parent1, parent2, ancestor) {
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
@@ -569,7 +548,7 @@ class Extractor {
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 			rec.removeFiles(new File(destinationDir))
 
-			this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
+			result = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
 					ancestor.substring(0, 5), allRevFolder)
 			// avoiding references issues
 			checkoutMasterBranch()

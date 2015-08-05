@@ -143,18 +143,15 @@ class GremlinQueryApp {
 	}
 	
 	
-	public String run(String projectName, String projectRepo, String graphBase, String downloadPath){
+	public ArrayList<MergeCommit> run(String projectName, String projectRepo, String graphBase){
 		this.createProjectDir(projectName)
 		GremlinProject project = new GremlinProject(projectName, projectRepo, graphBase)
 		GremlinQuery gq = new GremlinQuery(project.graph)
 		project.listMergeCommit = gq.mergeCommitsList
+		Collections.shuffle(project.listMergeCommit)
 		GremlinPrinter.writeCSV(project.listMergeCommit, projectName)
 		gq.shutdownExistingGraph()
-		Extractor e = new Extractor(project, downloadPath)
-		e.extractCommits()
-		println('All merges were downloaded from GitHub!\n')
-		return e.getRevisionFile()
-
+		return project.listMergeCommit
 	}
 	
 	private void createProjectDir(String projectName){
