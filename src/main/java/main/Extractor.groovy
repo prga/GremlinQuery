@@ -17,7 +17,7 @@ import com.tinkerpop.gremlin.groovy.Gremlin;
 
 import scala.util.control.Exception.Catch;
 import util.ChkoutCmd
-import util.RecursiveFileList
+//import util.RecursiveFileList
 
 class Extractor {
 
@@ -515,8 +515,8 @@ class Extractor {
 			def destinationDir = allRevFolder + "/rev_left_" + parent1.substring(0, 5)
 
 			this.copyFiles(this.repositoryDir, destinationDir, "")
-			def rec = new RecursiveFileList()
-			rec.removeFiles(new File(destinationDir))
+			//def rec = new RecursiveFileList()
+			//rec.removeFiles(new File(destinationDir))
 
 			// git clean -f
 			CleanCommand cleanCommandgit = this.git.clean()
