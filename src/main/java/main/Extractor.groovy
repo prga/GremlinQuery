@@ -145,7 +145,8 @@ class Extractor {
 		println "Reseted sucessfully to: " + resetResult.getName()
 	}
 
-	def runAllFiles(parent1, parent2) {
+	public String runAllFiles(parent1, parent2) {
+		String result = ''
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		try{
@@ -174,8 +175,11 @@ class Extractor {
 			if (res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
 				CONFLICTS = CONFLICTS + 1
 				println "Revision Base: " + res.getBase().toString()
-				println "Conflitcts: " + res.getConflicts().toString()
+				println "Conflicts: " + res.getConflicts().toString()
 				printConflicts(res)
+				//copy merged files
+				destinationDir = allRevFolder + "/rev_merged_git"
+				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 				// git reset --hard BASE
 				def revBase = (res.getBase().toString()).split()[1]
 				this.resetCommand(this.git, revBase)
@@ -184,6 +188,8 @@ class Extractor {
 				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 				// the input revisions listed in a file
 				this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
+				result = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
+					revBase.substring(0, 5), allRevFolder)
 			} else {
 				// keeping only the conflicting revisions
 				this.deleteFiles(allRevFolder)
@@ -201,6 +207,7 @@ class Extractor {
 			// closing git repository
 			this.git.getRepository().close()
 		}
+		return result
 	}
 
 	def runOnlyConflicts(parent1, parent2) {
@@ -475,18 +482,19 @@ class Extractor {
 			def SHA_2 = mergeCommit.parent2
 
 			//FUTURE VARIATION POINT
-			//if you wan't to catch only the false positives use these
-			//this.runAllFiles(SHA_1, SHA_2)
-			//elseif you wan't to download all merges
+			//if you wan't to merge and save the merge result
+			revisionFile = this.runAllFiles(SHA_1, SHA_2)
+			this.printRevisionFiles(revisionFile)
+			//elseif you just wan't to download all merges
 
 
-			def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
+			/*def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
 			if(ancestorSHA != null){
 			revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
 			this.printRevisionFiles(revisionFile)
 			}else{
 				println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
-			}
+			}*/
 
 		return revisionFile
 	}
@@ -529,7 +537,7 @@ class Extractor {
 			def excludeDir	   = "**/" + allRevFolder + "/**"
 
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
-			rec.removeFiles(new File(destinationDir))
+			//rec.removeFiles(new File(destinationDir))
 
 
 			cleanCommandgit = this.git.clean()
@@ -546,7 +554,7 @@ class Extractor {
 			excludeDir	   = "**/" + allRevFolder + "/**"
 
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
-			rec.removeFiles(new File(destinationDir))
+			//rec.removeFiles(new File(destinationDir))
 
 			result = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
 					ancestor.substring(0, 5), allRevFolder)
