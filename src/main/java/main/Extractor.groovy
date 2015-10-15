@@ -172,17 +172,28 @@ class Extractor {
 			MergeCommand mergeCommand = this.git.merge()
 			mergeCommand.include(refNew)
 			MergeResult res = mergeCommand.call()
+			
+			
 			if (res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
 				CONFLICTS = CONFLICTS + 1
-				println "Revision Base: " + res.getBase().toString()
 				println "Conflicts: " + res.getConflicts().toString()
 				printConflicts(res)
-				//copy merged files
-				destinationDir = allRevFolder + "/rev_merged_git"
-				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+			
+			}
+			
+			//copy merged files
+			destinationDir = allRevFolder + "/rev_merged_git"
+			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+			
+			
+			def revBase = findCommonAncestor(parent1, parent2)
+			
+			if(revBase != null){
+				
 				// git reset --hard BASE
-				def revBase = (res.getBase().toString()).split()[1]
+				
 				this.resetCommand(this.git, revBase)
+				
 				// copy files for base revision
 				destinationDir = allRevFolder + "/rev_base_" + revBase.substring(0, 5)
 				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
@@ -190,10 +201,8 @@ class Extractor {
 				this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
 				result = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
 					revBase.substring(0, 5), allRevFolder)
-			} else {
-				// keeping only the conflicting revisions
-				this.deleteFiles(allRevFolder)
 			}
+			
 			// avoiding references issues
 			this.deleteBranch("new")
 		} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
@@ -484,7 +493,12 @@ class Extractor {
 			//FUTURE VARIATION POINT
 			//if you wan't to merge and save the merge result
 			revisionFile = this.runAllFiles(SHA_1, SHA_2)
-			this.printRevisionFiles(revisionFile)
+			if(revisionFile != ''){
+				this.printRevisionFiles(revisionFile)
+			}else{
+				println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
+			}
+			
 			//elseif you just wan't to download all merges
 
 
