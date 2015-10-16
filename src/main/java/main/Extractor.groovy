@@ -145,10 +145,13 @@ class Extractor {
 		println "Reseted sucessfully to: " + resetResult.getName()
 	}
 
-	public String runAllFiles(parent1, parent2) {
-		String result = ''
+	public ExtractorResult runAllFiles(String parent1, String parent2) {
+		ExtractorResult result = new ExtractorResult()
+		result.setRevisionFile('')
+		
 		// folder of the revisions being tested
-		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" +
+				parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		try{
 			// opening the working directory
 			this.git = openRepository();
@@ -172,37 +175,38 @@ class Extractor {
 			MergeCommand mergeCommand = this.git.merge()
 			mergeCommand.include(refNew)
 			MergeResult res = mergeCommand.call()
-			
-			
+
+
 			if (res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
 				CONFLICTS = CONFLICTS + 1
 				println "Conflicts: " + res.getConflicts().toString()
 				printConflicts(res)
-			
+				result.setNonJavaFilesWithConflict(this.processMergeResult(res.getConflicts()))
 			}
-			
+
 			//copy merged files
 			destinationDir = allRevFolder + "/rev_merged_git"
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
-			
-			
+
+
 			def revBase = findCommonAncestor(parent1, parent2)
-			
+
 			if(revBase != null){
-				
+
 				// git reset --hard BASE
-				
+
 				this.resetCommand(this.git, revBase)
-				
+
 				// copy files for base revision
 				destinationDir = allRevFolder + "/rev_base_" + revBase.substring(0, 5)
 				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 				// the input revisions listed in a file
 				this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
-				result = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
-					revBase.substring(0, 5), allRevFolder)
+				String temp = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
+						revBase.substring(0, 5), allRevFolder)
+				result.setRevisionFile(temp)
 			}
-			
+
 			// avoiding references issues
 			this.deleteBranch("new")
 		} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
@@ -218,7 +222,21 @@ class Extractor {
 		}
 		return result
 	}
+	
+	private ArrayList<String> processMergeResult(HashMap<String,int[][]> conflicts){
+		ArrayList<String> result = new ArrayList<String>()
+		
+		for(String key : conflicts.keySet()){
+			
+			if(!(key.endsWith(".java"))){
+				result.add(key)
+			}
+		}
 
+		return result
+	}
+	
+	
 	def runOnlyConflicts(parent1, parent2) {
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
@@ -484,45 +502,47 @@ class Extractor {
 		new AntBuilder().copy(todir:this.projectsDirectory+this.project.name+"/git") {fileset(dir:this.projectsDirectory + "/temp/" + this.project.name+"/git" , defaultExcludes: false){}}
 	}
 
-	public 	String extractCommit(MergeCommit mergeCommit){
-			String revisionFile = ''
-			// the commits to checkout
-			def SHA_1 = mergeCommit.parent1
-			def SHA_2 = mergeCommit.parent2
+	public 	ExtractorResult extractCommit(MergeCommit mergeCommit){
+		ExtractorResult result = new ExtractorResult()
 
-			//FUTURE VARIATION POINT
-			//if you wan't to merge and save the merge result
-			revisionFile = this.runAllFiles(SHA_1, SHA_2)
-			if(revisionFile != ''){
-				this.printRevisionFiles(revisionFile)
-			}else{
-				println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
-			}
-			
-			//elseif you just wan't to download all merges
+		// the commits to checkout
+		def SHA_1 = mergeCommit.parent1
+		def SHA_2 = mergeCommit.parent2
 
-
-			/*def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
-			if(ancestorSHA != null){
-			revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
+		//FUTURE VARIATION POINT
+		//if you wan't to merge and save the merge result
+		result = this.runAllFiles(SHA_1, SHA_2)
+		String revisionFile = result.getRevisionFile()
+		if(revisionFile != ''){
 			this.printRevisionFiles(revisionFile)
-			}else{
-				println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
-			}*/
+		}else{
+			println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
+		}
 
-		return revisionFile
+		//elseif you just wan't to download all merges
+
+
+		/*def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
+		 if(ancestorSHA != null){
+		 revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
+		 this.printRevisionFiles(revisionFile)
+		 }else{
+		 println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
+		 }*/
+
+		return result
 	}
 
 	private void printRevisionFiles(String s){
 		String temp = "ResultData" + File.separator + this.project.name +
 				File.separator + 'RevisionsFiles.csv'
 		File file = new File(temp)
-		
+
 		String line = s + '\n'
 		file.append(line)
 
 	}
-	
+
 	private String downloadAllFiles(parent1, parent2, ancestor) {
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
