@@ -44,6 +44,10 @@ import util.ChkoutCmd
 import util.RecursiveFileList
 
 class Blame {
+	
+	public static final String LEFT_SEPARATOR = '// LEFT //';
+	
+	public static final String RIGHT_SEPARATOR = '// RIGHT //';
 
 	public String annotateBlame(File left, File base, File right){
 		String result = ''
@@ -109,10 +113,10 @@ class Blame {
 			String line = ''
 			if(commit.equals(left))
 			{
-				line = '// LEFT //' + it
+				line = this.LEFT_SEPARATOR + it
 			}else if(commit.equals(right))
 			{
-				line = '// RIGHT //' + it 
+				line = this.RIGHT_SEPARATOR + it 
 			}else{
 				line = it 
 			}
