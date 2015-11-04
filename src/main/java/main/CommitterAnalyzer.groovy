@@ -74,12 +74,13 @@ class CommitterAnalyzer {
 			//clone repo
 			Git git = openRepository(gProject)
 			Repository repo = git.getRepository()
+			println 'analyzing merge commit parents'
 			for(MergeCommit mc : gProject.listMergeCommit ){
-
+				
 				mc.parentsAreDifferent = this.setParentsAreDifferent(repo, mc)
 
 			}
-
+			println 'finished merge commit parents anlysis'
 			this.printResults(gProject)
 		}
 	}
@@ -92,7 +93,8 @@ class CommitterAnalyzer {
 		//get parent2
 		String parent2 = this.getParentId(repo, mc.parent2)
 		//compare them
-
+		
+		
 		if(parent1.equals(parent2)){
 			parentsAreDifferent = false
 		}
@@ -103,11 +105,18 @@ class CommitterAnalyzer {
 	private String getParentId(Repository repo, String commit){
 
 		String email = ''
-		RevWalk walk = new RevWalk(repo)
-		ObjectId id = repo.resolve(commit)
-		RevCommit parent = walk.parseCommit(id)
-		PersonIdent person = parent.getCommitterIdent()
-		email = person.getEmailAddress()
+		
+		try{
+			RevWalk walk = new RevWalk(repo)
+			ObjectId id = repo.resolve(commit)
+			RevCommit parent = walk.parseCommit(id)
+			PersonIdent person = parent.getCommitterIdent()
+			email = person.getEmailAddress()
+		} catch(Exception e){
+			println 'did not find commit: ' + commit
+		}
+		
+		
 
 		return email
 
