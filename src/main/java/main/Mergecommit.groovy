@@ -6,7 +6,7 @@ class MergeCommit {
 	String parent1
 	String parent2
 	boolean parentsAreDifferent
-	
+	Date date
 	
 
 }
