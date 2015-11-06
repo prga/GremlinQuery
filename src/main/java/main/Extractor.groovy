@@ -153,6 +153,7 @@ class Extractor {
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" +
 				parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		try{
+			new File(allRevFolder).deleteDir()
 			// opening the working directory
 			this.git = openRepository();
 			// git reset --hard SHA1_1
