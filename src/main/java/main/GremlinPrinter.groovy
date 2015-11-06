@@ -12,7 +12,9 @@ class GremlinPrinter {
 		out.delete()
 		
 		out = new File(filepath)
-		
+		if(!out.parentFile.exists()){
+			out.parentFile.mkdirs()
+		}
 		def firstRow = ["Merge commit", "Parent 1", "Parent 2"]
 		out.append firstRow.join(',')
 		out.append '\n'
