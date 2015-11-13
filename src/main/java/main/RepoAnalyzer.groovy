@@ -126,7 +126,7 @@ class RepoAnalyzer {
 			
 			File file = files[i]
 			String path = file.getAbsolutePath()
-			println path
+			//println path
 			
 			if(file.isDirectory() && !path.endsWith('.git')){
 				
