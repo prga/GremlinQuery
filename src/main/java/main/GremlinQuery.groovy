@@ -170,15 +170,15 @@ class GremlinQuery {
 				String delims = "[,]"
 				String[] tokens = commit.split(delims);
 		
-				boolean foundSha = false
+				boolean foundDate = false
 				int counter = 0
 				String s =""
 		
-				while((!foundSha) && (counter < tokens.length)){
+				while((!foundDate) && (counter < tokens.length)){
 					s = tokens[counter]
 					def aux = s.length()
 					if(s.contains("date:")){
-						foundSha = true
+						foundDate = true
 					}else{
 		
 						counter++
@@ -187,7 +187,7 @@ class GremlinQuery {
 				}
 		
 				String date = ""
-				if(foundSha){
+				if(foundDate){
 					date = s.replaceAll("[^0-9.]", "")//s.substring(6,s.length() - 1)
 				}
 		
