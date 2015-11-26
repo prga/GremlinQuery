@@ -1,6 +1,6 @@
 package main
 
-class MergeCommit {
+public class MergeCommit {
 	
 	String sha
 	String parent1
