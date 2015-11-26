@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 class GremlinPrinter {
 	
-	public static void writeCSV(ArrayList<MergeCommit> listMC, String projectName){
+	public static void writeCSV(ArrayList<MergeCommit> listMC, String projectName){	
 		String filepath = 'ResultData' + File.separator + projectName + File.separator  + 'mergeCommits.csv'
 		def out = new File(filepath)
 		
