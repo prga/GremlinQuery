@@ -42,8 +42,8 @@ class GremlinQuery {
 		
 		def mergeCommitShas = this.getShas()
 		
-		for(sha in mergeCommitShas){
-			
+		for(commit in mergeCommitShas){
+			def sha = commit[0]
 			MergeCommit mc = new MergeCommit()
 			
 			mc.sha = sha
@@ -51,7 +51,10 @@ class GremlinQuery {
 			String[] parents = this.getParentsSha(sha)
 			mc.parent1 = parents.getAt(0)
 			mc.parent2 = parents.getAt(1)
-			
+			if(!commit[1].equals(""))
+			{
+				mc.date = new Date((long) commit[1].toLong() * 1000)
+			}
 			this.setMergeCommit(mc)
 			
 			
@@ -79,7 +82,8 @@ class GremlinQuery {
 		ArrayList<String> results = new ArrayList<String>()
 		for(commit in mergeCommits){
 			
-			results.add(this.auxGetSha(commit.toString()))
+			String[] result = [this.auxGetSha(commit.toString()), this.getDate(commit.toString())];
+			results.add(result)
 			
 		}
 		
@@ -159,6 +163,37 @@ class GremlinQuery {
 		return id
 		
 	}
+	
+	private String getDate (String commit){
+		
+		
+				String delims = "[,]"
+				String[] tokens = commit.split(delims);
+		
+				boolean foundDate = false
+				int counter = 0
+				String s =""
+		
+				while((!foundDate) && (counter < tokens.length)){
+					s = tokens[counter]
+					def aux = s.length()
+					if(s.contains("date:")){
+						foundDate = true
+					}else{
+		
+						counter++
+		
+					}
+				}
+		
+				String date = ""
+				if(foundDate){
+					date = s.replaceAll("[^0-9.]", "")//s.substring(6,s.length() - 1)
+				}
+		
+				return date
+		
+			}
 	
 	
 }
