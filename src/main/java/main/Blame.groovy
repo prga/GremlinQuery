@@ -1,10 +1,9 @@
 package main
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
+import java.io.IOException
+import java.io.InputStreamReader;
 
 import org.eclipse.jgit.api.CleanCommand
 import org.eclipse.jgit.api.Git
@@ -44,13 +43,19 @@ import util.ChkoutCmd
 import util.RecursiveFileList
 
 class Blame {
-	
+
 	public static final String LEFT_SEPARATOR = '// LEFT //';
-	
+
 	public static final String RIGHT_SEPARATOR = '// RIGHT //';
+	
+	public static final String DIFF3MERGE_SEPARATOR = "<<<<<<<";
+	public static final String DIFF3MERGE_END = ">>>>>>>";
 
 	public String annotateBlame(File left, File base, File right){
 		String result = ''
+
+		//check for identical lines added by both revisions
+		ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
 
 		//Init repo
 		Git git = this.openRepository()
@@ -88,22 +93,61 @@ class Blame {
 		git.commit().setMessage("Merging right on master").call();
 		println res_right.getMergeStatus()
 
-		result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitBase, commitRight)
+		result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitBase, commitRight, identicalLines)
+
+		//closing git repository and delete temporary dir
 		repo.close();
 		File dir = new File(repoDir)
 		dir.deleteDir()
-		
+
 		return result
+	}
+
+	private List<Integer> checkIdenticalLinesAddedByBothRevs(File left, File base, File right){
+		ArrayList<Integer> result
+		//execute merge
+		String merge = this.executeMerge(left, base, right)
+		if(merge.contains(DIFF3MERGE_SEPARATOR) && merge.contains(DIFF3MERGE_END)){
+			result = this.retrieveIdentLines(merge)
+		}
+		return result
+	}
+	
+	private List<Integer> retrieveIdentLines(String merge){
+		//TO DO
+		ArrayList<Integer> result = new ArrayList<Integer>()
+		int i = 1
+		String[] lines = merge.split('\n')
+		while(i <= lines.length){
+			
+		}
+	}
+	
+	private String executeMerge(File left, File base, File right){
+	
+		String mergeCmd = "diff3 --merge " + left.getPath() + " " + base.getPath() + " " + right.getPath()
+			Runtime run = Runtime.getRuntime()
+			Process pr = run.exec(mergeCmd)
+
+			BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()))
+			String line = ""
+			String res = ""
+			while ((line=buf.readLine())!=null) {
+				res += line + "\n"
+			}
+			pr.getInputStream().close()
+			
+			return res
 	}
 
 
 	private String executeAndProcessBlame(File file, Repository repo, RevCommit left,
 			RevCommit base, RevCommit right){
-
-		String result = ''	
+		//TO DO
+		String result = ''
 		BlameCommand blamer = new BlameCommand(repo);
 		ObjectId commitID = repo.resolve("HEAD");
-		
+
 		blamer.setStartCommit(commitID);
 		blamer.setFilePath('file');
 		BlameResult blame = blamer.call();
@@ -116,15 +160,15 @@ class Blame {
 				line = this.LEFT_SEPARATOR + it
 			}else if(commit.equals(right))
 			{
-				line = this.RIGHT_SEPARATOR + it 
+				line = this.RIGHT_SEPARATOR + it
 			}else{
-				line = it 
+				line = it
 			}
-			
+
 			result = result + line + '\n'
 			i++
 		}
-		
+
 		return result
 	}
 
@@ -164,5 +208,14 @@ class Blame {
 		chkcmd.setForce(true)
 		Ref checkoutResult = chkcmd.call()
 		println "Checked out branch sucessfully: " + checkoutResult.getName()
+	}
+
+	public static void main (String [] args){
+		File left = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/left/Example.java')
+		File base = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/base/Example.java')
+		File right = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/right/Example.java')
+		Blame blame = new Blame()
+		String result = blame.annotateBlame(left, base, right)
+		println result
 	}
 }
