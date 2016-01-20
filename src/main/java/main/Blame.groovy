@@ -108,9 +108,10 @@ class Blame {
 		ArrayList<Integer> result
 		//execute merge
 		String merge = this.executeMerge(left, base, right)
-		if(merge.contains(DIFF3MERGE_SEPARATOR) && merge.contains(DIFF3MERGE_END)){
+		if(merge.contains(DIFF3MERGE_SEPARATOR) && merge.contains(DIFF3MERGE_END) && 
+			merge.contains(DIFF3MERGE_END)){
+			
 			result = this.retrieveIdentLines(merge)
-
 		}
 		return result
 	}
@@ -165,7 +166,7 @@ class Blame {
 
 	private String executeAndProcessBlame(File file, Repository repo, RevCommit left,
 			RevCommit base, RevCommit right, List<Integer> identicalLines){
-		//TO DO
+
 		String result = ''
 		BlameCommand blamer = new BlameCommand(repo);
 		ObjectId commitID = repo.resolve("HEAD");
@@ -178,7 +179,7 @@ class Blame {
 			RevCommit commit = blame.getSourceCommit(i);
 			String line = ''
 			if( commit.equals(left) ){
-				
+
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
 					line = this.LEFT_SEPARATOR + it
 				}else{
@@ -186,17 +187,17 @@ class Blame {
 				}
 
 			}else if( commit.equals(right)){
-			
+
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
 					line = this.RIGHT_SEPARATOR + it
 				}else{
 					line = it
 				}
-				
+
 			}else{
-			
+
 				line = it
-				
+
 			}
 
 			result = result + line + '\n'
