@@ -47,9 +47,10 @@ class Blame {
 	public static final String LEFT_SEPARATOR = '// LEFT //';
 
 	public static final String RIGHT_SEPARATOR = '// RIGHT //';
-	
+
 	public static final String DIFF3MERGE_SEPARATOR = "<<<<<<<";
 	public static final String DIFF3MERGE_END = ">>>>>>>";
+	public static final String DIFF3MERGE_MIDDLE = "=======";
 
 	public String annotateBlame(File left, File base, File right){
 		String result = ''
@@ -109,40 +110,61 @@ class Blame {
 		String merge = this.executeMerge(left, base, right)
 		if(merge.contains(DIFF3MERGE_SEPARATOR) && merge.contains(DIFF3MERGE_END)){
 			result = this.retrieveIdentLines(merge)
+
 		}
 		return result
 	}
-	
-	private List<Integer> retrieveIdentLines(String merge){
-		//TO DO
-		ArrayList<Integer> result = new ArrayList<Integer>()
-		int i = 1
-		String[] lines = merge.split('\n')
-		while(i <= lines.length){
-			
-		}
-	}
-	
-	private String executeMerge(File left, File base, File right){
-	
-		String mergeCmd = "diff3 --merge " + left.getPath() + " " + base.getPath() + " " + right.getPath()
-			Runtime run = Runtime.getRuntime()
-			Process pr = run.exec(mergeCmd)
 
-			BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()))
-			String line = ""
-			String res = ""
-			while ((line=buf.readLine())!=null) {
-				res += line + "\n"
+	private List<Integer> retrieveIdentLines(String merge){
+		ArrayList<Integer> result = new ArrayList<Integer>()
+		int index = 0
+		int conflictLines = 0
+		String[] lines = merge.split('\n')
+
+		while(index < lines.length){
+
+			if(lines[index].contains(DIFF3MERGE_SEPARATOR)){
+
+				while(!lines[index].contains(DIFF3MERGE_MIDDLE)){
+					conflictLines++
+					index++
+				}
+				conflictLines++
+				index++
+				while(!lines[index].contains(DIFF3MERGE_END)){
+					result.add(new Integer(index - conflictLines))
+					index++
+				}
+				conflictLines++
+				index++
+			}else{
+				index++
 			}
-			pr.getInputStream().close()
-			
-			return res
+		}
+		println  'Identical lines added by boths revisions ' + result
+		return result
+	}
+
+	private String executeMerge(File left, File base, File right){
+
+		String mergeCmd = "diff3 --merge " + left.getPath() + " " + base.getPath() + " " + right.getPath()
+		Runtime run = Runtime.getRuntime()
+		Process pr = run.exec(mergeCmd)
+
+		BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()))
+		String line = ""
+		String res = ""
+		while ((line=buf.readLine())!=null) {
+			res += line + "\n"
+		}
+		pr.getInputStream().close()
+
+		return res
 	}
 
 
 	private String executeAndProcessBlame(File file, Repository repo, RevCommit left,
-			RevCommit base, RevCommit right){
+			RevCommit base, RevCommit right, List<Integer> identicalLines){
 		//TO DO
 		String result = ''
 		BlameCommand blamer = new BlameCommand(repo);
@@ -155,14 +177,26 @@ class Blame {
 		file.eachLine {
 			RevCommit commit = blame.getSourceCommit(i);
 			String line = ''
-			if(commit.equals(left))
-			{
-				line = this.LEFT_SEPARATOR + it
-			}else if(commit.equals(right))
-			{
-				line = this.RIGHT_SEPARATOR + it
+			if( commit.equals(left) ){
+				
+				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
+					line = this.LEFT_SEPARATOR + it
+				}else{
+					line = it
+				}
+
+			}else if( commit.equals(right)){
+			
+				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
+					line = this.RIGHT_SEPARATOR + it
+				}else{
+					line = it
+				}
+				
 			}else{
+			
 				line = it
+				
 			}
 
 			result = result + line + '\n'
@@ -172,7 +206,20 @@ class Blame {
 		return result
 	}
 
+	private boolean isIdenticalLine(int index, List<Integer> identicalLines){
+		boolean isIdenticalLine = false
+		int i = 0
+		while(!isIdenticalLine && i < identicalLines.size() ){
+			int r = identicalLines.getAt(i).intValue()
+			if(index == r){
+				isIdenticalLine = true
+			}else{
+				i++
+			}
 
+		}
+		return isIdenticalLine
+	}
 
 	public Git openRepository() throws IOException {
 		String repositoryDir = System.getProperty("user.dir") + File.separator + 'GitBlameRepo'
@@ -217,5 +264,8 @@ class Blame {
 		Blame blame = new Blame()
 		String result = blame.annotateBlame(left, base, right)
 		println result
+
+		/*Integer x = new Integer(9)
+		 println x.intValue()*/
 	}
 }
