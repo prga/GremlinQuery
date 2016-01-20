@@ -55,9 +55,6 @@ class Blame {
 	public String annotateBlame(File left, File base, File right){
 		String result = ''
 
-		//check for identical lines added by both revisions
-		ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
-
 		//Init repo
 		Git git = this.openRepository()
 		Repository repo = git.getRepository()
@@ -93,7 +90,11 @@ class Blame {
 		MergeResult res_right = git.merge().include(commitRight.getId()).setCommit(false).call();
 		git.commit().setMessage("Merging right on master").call();
 		println res_right.getMergeStatus()
-
+		
+		//check for identical lines added by both revisions
+		ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
+		
+		//execute blame routine
 		result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitBase, commitRight, identicalLines)
 
 		//closing git repository and delete temporary dir
@@ -105,7 +106,7 @@ class Blame {
 	}
 
 	private List<Integer> checkIdenticalLinesAddedByBothRevs(File left, File base, File right){
-		ArrayList<Integer> result
+		ArrayList<Integer> result = new ArrayList<Integer>()
 		//execute merge
 		String merge = this.executeMerge(left, base, right)
 		if(merge.contains(DIFF3MERGE_SEPARATOR) && merge.contains(DIFF3MERGE_END) && 
