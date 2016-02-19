@@ -92,7 +92,7 @@ class GremlinQuery {
 	
 
 	
-	private String auxGetSha(String commit){
+	public static String auxGetSha(String commit){
 		
 		String a = commit.substring(1, commit.length() -1)
 		String delims = ","
@@ -152,7 +152,7 @@ class GremlinQuery {
 	}
 	
 
-	private String auxGetParentsID(String parent){
+	private static String auxGetParentsID(String parent){
 		
 		String delims = "[>]"
 		String[] tokens = parent.toString().split(delims)
@@ -164,7 +164,7 @@ class GremlinQuery {
 		
 	}
 	
-	private String getDate (String commit){
+	public static String getDate (String commit){
 		
 		
 				String delims = "[,]"

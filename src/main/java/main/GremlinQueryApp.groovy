@@ -161,11 +161,20 @@ class GremlinQueryApp {
 		
 	}
 	
+	public ArrayList<MergeCommit> runAllCommits(String projectName, String projectRepo, String graphBase){
+		this.createProjectDir(projectName)
+		GremlinProject project = new GremlinProject(projectName, projectRepo, graphBase)
+		NormalizedGremlinQuery gq = new NormalizedGremlinQuery(project.graph)
+		project.listMergeCommit = gq.allCommitsList
+		GremlinPrinter.writeCSV(project.listMergeCommit, projectName)
+		gq.shutdownExistingGraph()
+		return project.listMergeCommit
+	} 
+	
 	public static void main (String[] args){
 		//runWithCommitCsv()
 		
-		run()
-
+		//run()
 		//choose25MergeScenarios()
 		
 

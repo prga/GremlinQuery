@@ -20,6 +20,11 @@ class GremlinProject {
 		this.listMergeCommit = new ArrayList<MergeCommit>()
 		this.diffParents = 0
 	}
+	
+	public GremlinProject(String projectName, String projectRepo){
+		this.name = projectName
+		this.url = 'https://github.com/' + projectRepo + '.git'
+	}
 
 	public void computeDiffParentsPercentage(){
 		this.diffParentsPercentages = 0
