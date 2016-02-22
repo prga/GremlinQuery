@@ -148,7 +148,7 @@ class Extractor {
 	public ExtractorResult runAllFiles(String parent1, String parent2) {
 		ExtractorResult result = new ExtractorResult()
 		result.setRevisionFile('')
-		
+
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" +
 				parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
@@ -223,12 +223,12 @@ class Extractor {
 		}
 		return result
 	}
-	
+
 	private ArrayList<String> processMergeResult(HashMap<String,int[][]> conflicts){
 		ArrayList<String> result = new ArrayList<String>()
-		
+
 		for(String key : conflicts.keySet()){
-			
+
 			if(!(key.endsWith(".java"))){
 				result.add(key)
 			}
@@ -236,8 +236,8 @@ class Extractor {
 
 		return result
 	}
-	
-	
+
+
 	def runOnlyConflicts(parent1, parent2) {
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
@@ -534,6 +534,95 @@ class Extractor {
 		return result
 	}
 
+
+	public ExtractorResult extractEvoScenario(MergeCommit mergeCommit){
+		ExtractorResult result = new ExtractorResult()
+		result.setRevisionFile('')
+
+		// folder of the revisions being tested
+		String allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" +
+				mergeCommit.sha.substring(0, 5)
+
+		try{
+			new File(allRevFolder).deleteDir()
+			// opening the working directory
+			this.git = openRepository();
+
+			//copy commit files
+			// git reset --hard SHA
+			this.resetCommand(this.git, mergeCommit.sha)
+			// copy files for commit revision
+			def destinationDir = allRevFolder + "/rev_base_" + mergeCommit.sha.substring(0, 5)
+			this.copyFiles(this.repositoryDir, destinationDir, "")
+			// git clean -f
+			CleanCommand cleanCommandgit = this.git.clean()
+			cleanCommandgit.call()
+
+			//copy parent1 files
+			// git reset --hard SHA1_1
+			this.resetCommand(this.git, mergeCommit.parent1)
+			// copy files for commit revision
+			destinationDir = allRevFolder + "/rev_left_" + mergeCommit.parent1.substring(0, 5)
+			this.copyFiles(this.repositoryDir, destinationDir, "")
+			// git clean -f
+			cleanCommandgit = this.git.clean()
+			cleanCommandgit.call()
+
+			if(!mergeCommit.parent2.equals('')){
+				// git checkout -b new SHA1_2
+				def refNew = checkoutAndCreateBranch("new", mergeCommit.parent2)
+				// copy files for parent2 revision
+				destinationDir = allRevFolder + "/rev_right_" + mergeCommit.parent2.substring(0, 5)
+				def excludeDir	= "**/" + allRevFolder + "/**"
+				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+				// git checkout master
+				checkoutMasterBranch()
+				// git merge new
+				MergeCommand mergeCommand = this.git.merge()
+				mergeCommand.include(refNew)
+				MergeResult res = mergeCommand.call()
+
+				if (res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
+					CONFLICTS = CONFLICTS + 1
+					println "Conflicts: " + res.getConflicts().toString()
+					printConflicts(res)
+					result.setNonJavaFilesWithConflict(this.processMergeResult(res.getConflicts()))
+				}
+
+			}else{
+				destinationDir = allRevFolder + "/rev_right_none"
+				new File(destinationDir).mkdir()
+			}
+
+			// the input revisions listed in a file
+			String parent2 = (mergeCommit.parent2.equals('')) ? 'none' : mergeCommit.parent2.substring(0, 5)
+
+			String temp = this.writeRevisionsFile(mergeCommit.parent1.substring(0, 5), parent2 ,
+					mergeCommit.sha.substring(0, 5), allRevFolder)
+
+			result.setRevisionFile(temp)
+			this.printRevisionFiles(temp)
+
+
+			// avoiding references issues
+			this.deleteBranch("new")
+		} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
+			println "ERROR: " + e
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+			println "Trying again..."
+		} finally {
+			println "Closing git repository..."
+			// closing git repository
+			this.git.getRepository().close()
+		}
+
+		return result
+	}
+
+
+
 	private void printRevisionFiles(String s){
 		String temp = "ResultData" + File.separator + this.project.name +
 				File.separator + 'RevisionsFiles.csv'
@@ -668,23 +757,24 @@ class Extractor {
 
 	static void main (String[] args){
 		//		//testing
-		//		MergeCommit mc = new MergeCommit()
-		//		mc.sha 		= "b4df7ee0b908f16cce2f7c819927fe5deb8cb6b9"
-		//		mc.parent1  = "fd21ef43df591ef86ad899d96d2d6a821ebb342d"
-		//		mc.parent2  = "576c6b3966cb85353ba874f6c9f2e65c4a89c70b"
+		MergeCommit mc = new MergeCommit()
+		mc.sha 		= "448259185594ed4f0b9ea2c6be9197ca3f5573db"
+		mc.parent1  = "5bd4c041add32a8be8790ae715cbad8a713efd6c"
+		mc.parent2  = ""
 		//
 		//		ArrayList<MergeCommit> lm = new ArrayList<MergeCommit>()
 		//		lm.add(mc)
 		//
 		GremlinProject p = new GremlinProject()
-		p.name = "orientdb"
-		p.url = "https://github.com/orientechnologies/orientdb.git"
-		p.graph = "C:/Users/Guilherme/Documents/workspace/gitminer-master/gitminer-master/graph.db_30-10"
+		p.name = "TGM"
+		p.url = "https://github.com/prga/TGM.git"
+		p.graph = "/Users/paolaaccioly/Documents/Doutorado/workspace_fse/gitminer/TGMgraph.db"
 
-		Extractor ex = new Extractor(p,"/Users/paolaaccioly/Documents/Doutorado/temp/orientdb")
-		String base = ex.findCommonAncestor("98f95d085f0026055792c70295787e38df99e654", "9aa13e5348e9e05812ddddf55bac7a0eeb39598c")
-		println base
-
+		Extractor ex = new Extractor(p,"/Users/paolaaccioly/Documents/Doutorado/workspace_fse/downloads")
+		//String base = ex.findCommonAncestor("98f95d085f0026055792c70295787e38df99e654", "9aa13e5348e9e05812ddddf55bac7a0eeb39598c")
+		//println base
+		ExtractorResult er = ex.extractEvoScenario(mc)
+		println 'hello'
 
 	}
 }
