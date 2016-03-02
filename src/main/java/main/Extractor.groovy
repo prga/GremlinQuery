@@ -260,7 +260,7 @@ class Extractor {
 			if (res.getBase() != null && res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
 				println "Conflicts: " + res.getConflicts().toString()
 				result.setNonJavaFilesWithConflict(this.processMergeResult(res.getConflicts()))
-				result.revisionFile = 'rev_' + parent1.substring(0, 5) + '_' + parent2.substring(0,5)
+				result.revisionFile = 'rev_' + parent1.substring(0, 5) + '-' + parent2.substring(0,5)
 				this.deleteBranch("new")
 				
 				this.git.getRepository().close()
