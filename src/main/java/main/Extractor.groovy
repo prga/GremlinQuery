@@ -612,7 +612,19 @@ class Extractor {
 			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 			println "Trying again..."
-		} finally {
+		} catch(org.eclipse.jgit.errors.NoMergeBaseException e1){
+			println "ERROR: " + e1
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+			println "Trying again..."
+		} catch(org.eclipse.jgit.errors.MissingObjectException e2){
+			println "ERROR: " + e2
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+			println "Trying again..."
+		}finally {
 			println "Closing git repository..."
 			// closing git repository
 			this.git.getRepository().close()
