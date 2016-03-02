@@ -624,6 +624,12 @@ class Extractor {
 			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 			println "Trying again..."
+		}catch(org.eclipse.jgit.api.errors.JGitInternalException ex){
+			println "ERROR: " + ex
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+			println "Trying again..."
 		}finally {
 			println "Closing git repository..."
 			// closing git repository
