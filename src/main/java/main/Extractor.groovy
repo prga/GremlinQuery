@@ -238,9 +238,9 @@ class Extractor {
 	}
 
 
-	def runOnlyConflicts(parent1, parent2) {
-		// folder of the revisions being tested
-		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+	public ExtractorResult getConflictingfiles(String parent1, String parent2) {
+		ExtractorResult result = new ExtractorResult()
+		
 		try{
 			// opening the working directory
 			this.git = openRepository();
@@ -258,12 +258,12 @@ class Extractor {
 			mergeCommand.include(refNew)
 			MergeResult res = mergeCommand.call()
 			if (res.getBase() != null && res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
-				println "Revision Base: " + res.getBase().toString()
-				println "Conflitcts: " + res.getConflicts().toString()
-				def allConflicts = printConflicts(res)
+				println "Conflicts: " + res.getConflicts().toString()
+				result.setNonJavaFilesWithConflict(this.processMergeResult(res.getConflicts()))
+				result.revisionFile = 'rev_' + parent1.substring(0, 5) + '_' + parent2.substring(0,5)
 				this.deleteBranch("new")
+				
 				this.git.getRepository().close()
-				this.moveConflictingFiles(parent1, parent2, allConflicts)
 			}
 			// avoiding references issues
 			this.deleteBranch("new")
@@ -271,32 +271,29 @@ class Extractor {
 		} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
 			println "ERROR: " + e
 			// reseting
-			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 		}catch(org.eclipse.jgit.api.errors.JGitInternalException f){
 			println "ERROR: " + f
 			// reseting
-			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 		} catch(org.eclipse.jgit.dircache.InvalidPathException g){
 			println "ERROR: " + g
 			// reseting
-			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 		} catch(org.eclipse.jgit.api.errors.RefNotFoundException h){
 			println "ERROR: " + h
 			// reseting
-			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 		} catch(java.lang.NullPointerException i){
 			println "ERROR: " + i
 			// reseting
-			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 		} finally {
 			// closing git repository
 			this.git.getRepository().close()
 		}
+		
+		return result
 	}
 
 	def moveConflictingFiles(parent1, parent2, allConflicts) throws org.eclipse.jgit.api.errors.CheckoutConflictException,
