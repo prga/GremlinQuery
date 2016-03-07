@@ -609,7 +609,13 @@ class Extractor {
 			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 			println "Trying again..."
-		} catch(org.eclipse.jgit.errors.NoMergeBaseException e1){
+		} catch(java.lang.NullPointerException e5){
+			println "ERROR: " + e5
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+			println "Trying again..."
+		}catch(org.eclipse.jgit.errors.NoMergeBaseException e1){
 			println "ERROR: " + e1
 			// reseting
 			this.deleteFiles(allRevFolder)
