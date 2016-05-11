@@ -86,7 +86,9 @@ class Blame {
 		MergeResult res_left = git.merge().include(commitLeft.getId()).setCommit(false).call();
 		git.commit().setMessage("Merging left on master").call();
 		println res_left.getMergeStatus()
-
+		CleanCommand cleanCommandgit = git.clean()
+		cleanCommandgit.call()
+		
 		MergeResult res_right = git.merge().include(commitRight.getId()).setCommit(false).call();
 		git.commit().setMessage("Merging right on master").call();
 		println res_right.getMergeStatus()
