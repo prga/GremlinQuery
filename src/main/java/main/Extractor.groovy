@@ -509,24 +509,25 @@ class Extractor {
 
 		//FUTURE VARIATION POINT
 		//if you wan't to merge and save the merge result
-		result = this.runAllFiles(SHA_1, SHA_2)
+		/*result = this.runAllFiles(SHA_1, SHA_2)
 		String revisionFile = result.getRevisionFile()
 		if(revisionFile != ''){
 			this.printRevisionFiles(revisionFile)
 		}else{
 			println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
-		}
+		}*/
 
 		//elseif you just wan't to download all merges
 
 
-		/*def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
+		def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
 		 if(ancestorSHA != null){
-		 revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
-		 this.printRevisionFiles(revisionFile)
+			 result.revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
+			 this.printRevisionFiles(result.revisionFile)
 		 }else{
-		 println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
-		 }*/
+		 	println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
+		 	this.printMergesWithoutBase(mergeCommit.sha)
+		 }
 
 		return result
 	}
@@ -652,6 +653,17 @@ class Extractor {
 		String line = s + '\n'
 		file.append(line)
 
+	}
+	
+	private void printMergesWithoutBase(String sha){
+		String path = "ResultData" + File.separator + this.project.name +
+				File.separator + 'MergesWithoutBase.csv'
+		File f = new File(path)
+		if(!f.exists()){
+			f.createNewFile()
+		}
+		f.append(sha + '\n')
+		
 	}
 
 	private String downloadAllFiles(parent1, parent2, ancestor) {
