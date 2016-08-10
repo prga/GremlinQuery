@@ -45,7 +45,6 @@ import util.RecursiveFileList
 class Blame {
 
 	public static final String LEFT_SEPARATOR = '// LEFT //';
-
 	public static final String RIGHT_SEPARATOR = '// RIGHT //';
 
 	public static final String DIFF3MERGE_SEPARATOR = "<<<<<<<";
@@ -64,7 +63,7 @@ class Blame {
 		File movedFile = new File( repoDir + File.separator + 'file' )
 		FileUtils.copyFile(base, movedFile);
 		def add = git.add().addFilepattern('file').call()
-		RevCommit commitBase = git.commit().setMessage("Base commit").call()
+		RevCommit commitBase = git.commit().setAll(true).setMessage("Base commit").call()
 
 		//Creating left commit on left branch
 		def ref_left = this.checkoutAndCreateBranch(repo, "left")
@@ -88,16 +87,18 @@ class Blame {
 		println res_left.getMergeStatus()
 		CleanCommand cleanCommandgit = git.clean()
 		cleanCommandgit.call()
-		
+
 		MergeResult res_right = git.merge().include(commitRight.getId()).setCommit(false).call();
 		git.commit().setMessage("Merging right on master").call();
 		println res_right.getMergeStatus()
-		
+		cleanCommandgit = git.clean()
+		cleanCommandgit.call()
+
 		//check for identical lines added by both revisions
 		ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
-		
+
 		//execute blame routine
-		result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitBase, commitRight, identicalLines)
+		result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitRight ,identicalLines)
 
 		//closing git repository and delete temporary dir
 		repo.close();
@@ -111,9 +112,9 @@ class Blame {
 		ArrayList<Integer> result = new ArrayList<Integer>()
 		//execute merge
 		String merge = this.executeMerge(left, base, right)
-		if(merge.contains(DIFF3MERGE_SEPARATOR) && merge.contains(DIFF3MERGE_END) && 
-			merge.contains(DIFF3MERGE_END)){
-			
+		if(merge.contains(DIFF3MERGE_SEPARATOR) && merge.contains(DIFF3MERGE_END) &&
+		merge.contains(DIFF3MERGE_END)){
+
 			result = this.retrieveIdentLines(merge)
 		}
 		return result
@@ -168,7 +169,7 @@ class Blame {
 
 
 	private String executeAndProcessBlame(File file, Repository repo, RevCommit left,
-			RevCommit base, RevCommit right, List<Integer> identicalLines){
+			RevCommit right, List<Integer> identicalLines){
 
 		String result = ''
 		BlameCommand blamer = new BlameCommand(repo);
