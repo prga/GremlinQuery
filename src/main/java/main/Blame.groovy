@@ -53,6 +53,7 @@ class Blame {
 
 	public String annotateBlame(File left, File base, File right){
 		String result = ''
+		String leftText = left.getText()
 
 		//Init repo
 		Git git = this.openRepository()
@@ -63,7 +64,7 @@ class Blame {
 		File movedFile = new File( repoDir + File.separator + 'file' )
 		FileUtils.copyFile(base, movedFile);
 		def add = git.add().addFilepattern('file').call()
-		RevCommit commitBase = git.commit().setAll(true).setMessage("Base commit").call()
+		RevCommit commitBase = git.commit().setMessage("Base commit").call()
 
 		//Creating left commit on left branch
 		def ref_left = this.checkoutAndCreateBranch(repo, "left")
@@ -89,16 +90,18 @@ class Blame {
 		cleanCommandgit.call()
 
 		MergeResult res_right = git.merge().include(commitRight.getId()).setCommit(false).call();
-		git.commit().setMessage("Merging right on master").call();
-		println res_right.getMergeStatus()
-		cleanCommandgit = git.clean()
-		cleanCommandgit.call()
-
-		//check for identical lines added by both revisions
-		ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
-
-		//execute blame routine
-		result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitRight ,identicalLines)
+		String status = res_right.mergeStatus
+		if(!status.equalsIgnoreCase('conflicting')){
+			git.commit().setMessage("Merging right on master").call();
+			println res_right.getMergeStatus()
+	
+			//check for identical lines added by both revisions
+			ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
+	
+			//execute blame routine
+			result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitRight, identicalLines)
+		}
+		
 
 		//closing git repository and delete temporary dir
 		repo.close();
@@ -178,34 +181,35 @@ class Blame {
 		blamer.setStartCommit(commitID);
 		blamer.setFilePath('file');
 		BlameResult blame = blamer.call();
-		int i = 0
-		file.eachLine {
+		
+		String text = file.getText()
+		String[] lines = text.split('\n')
+		for(int i = 0 ; i < lines.length; i++){
 			RevCommit commit = blame.getSourceCommit(i);
 			String line = ''
 			if( commit.equals(left) ){
 
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
-					line = this.LEFT_SEPARATOR + it
+					line = this.LEFT_SEPARATOR + lines[i] 
 				}else{
-					line = it
+					line = lines[i] 
 				}
 
 			}else if( commit.equals(right)){
 
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
-					line = this.RIGHT_SEPARATOR + it
+					line = this.RIGHT_SEPARATOR + lines[i] 
 				}else{
-					line = it
+					line = lines[i] 
 				}
 
 			}else{
 
-				line = it
+				line = lines[i] 
 
 			}
 
 			result = result + line + '\n'
-			i++
 		}
 
 		return result
@@ -260,6 +264,14 @@ class Blame {
 		chkcmd.setForce(true)
 		Ref checkoutResult = chkcmd.call()
 		println "Checked out branch sucessfully: " + checkoutResult.getName()
+	}
+
+	def resetCommand(git, ref){
+		ResetCommand resetCommand = git.reset()
+		resetCommand.setMode(ResetType.HARD)
+		resetCommand.setRef(ref)
+		Ref resetResult = resetCommand.call()
+		println "Reseted sucessfully to: " + resetResult.getName()
 	}
 
 	public static void main (String [] args){
