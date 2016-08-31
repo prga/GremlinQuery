@@ -19,6 +19,10 @@ import scala.util.control.Exception.Catch;
 import util.ChkoutCmd
 //import util.RecursiveFileList
 
+/**
+ * @author paolaaccioly
+ *
+ */
 class Extractor {
 
 	// the url of the repository
@@ -86,7 +90,6 @@ class Extractor {
 
 		println "Having repository: " + repository.getDirectory()
 		repository.close()
-
 	}
 
 	def Git openRepository() {
@@ -98,7 +101,8 @@ class Extractor {
 			return git
 		} catch(org.eclipse.jgit.errors.RepositoryNotFoundException e){
 			this.cloneRepository()
-			this.openRepository()
+			/*if conflict predictor*/
+			//this.openRepository()
 		}
 	}
 
@@ -144,7 +148,8 @@ class Extractor {
 		Ref resetResult = resetCommand.call()
 		println "Reseted sucessfully to: " + resetResult.getName()
 	}
-
+	
+	
 	public ExtractorResult runAllFiles(String parent1, String parent2) {
 		ExtractorResult result = new ExtractorResult()
 		result.setRevisionFile('')
@@ -182,7 +187,7 @@ class Extractor {
 				CONFLICTS = CONFLICTS + 1
 				println "Conflicts: " + res.getConflicts().toString()
 				printConflicts(res)
-				result.setNonJavaFilesWithConflict(this.processMergeResult(res.getConflicts()))
+				this.processMergeResult(res.getConflicts(), result)
 			}
 
 			//copy merged files
@@ -224,17 +229,21 @@ class Extractor {
 		return result
 	}
 
-	private ArrayList<String> processMergeResult(HashMap<String,int[][]> conflicts){
-		ArrayList<String> result = new ArrayList<String>()
+	private void processMergeResult(HashMap<String,int[][]> conflicts, ExtractorResult er){
+		ArrayList<String> nonJavaFiles = new ArrayList<String>()
+		ArrayList<String> javaFiles = new ArrayList<String>()
 
 		for(String key : conflicts.keySet()){
 
 			if(!(key.endsWith(".java"))){
-				result.add(key)
+				nonJavaFiles.add(key)
+			}else{
+				javaFiles.add(key)
 			}
 		}
 
-		return result
+		er.setJavaFilesWithConflict(javaFiles)
+		er.setNonJavaFilesWithConflict(nonJavaFiles)
 	}
 
 
@@ -259,7 +268,7 @@ class Extractor {
 			MergeResult res = mergeCommand.call()
 			if (res.getBase() != null && res.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
 				println "Conflicts: " + res.getConflicts().toString()
-				result.setNonJavaFilesWithConflict(this.processMergeResult(res.getConflicts()))
+				this.processMergeResult(res.getConflicts(), result)
 				result.revisionFile = 'rev_' + parent1.substring(0, 5) + '-' + parent2.substring(0,5)
 				this.deleteBranch("new")
 				

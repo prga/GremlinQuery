@@ -6,9 +6,14 @@ class ExtractorResult {
 	
 	private ArrayList<String> nonJavaFilesWithConflict
 	
+	private ArrayList<String> javaFilesWithConflict
+	
+
+
 	public ExtractorResult(){
 		this.revisionFile = ''
 		this.nonJavaFilesWithConflict = new ArrayList<String>()
+		this.javaFilesWithConflict = new ArrayList<String>()
 		
 	}
 	
@@ -25,5 +30,12 @@ class ExtractorResult {
 		this.nonJavaFilesWithConflict = nonJavaFilesWithConflict;
 	}
 	
+	public ArrayList<String> getJavaFilesWithConflict() {
+		return javaFilesWithConflict;
+	}
+
+	public void setJavaFilesWithConflict(ArrayList<String> javaFilesWithConflict) {
+		this.javaFilesWithConflict = javaFilesWithConflict;
+	}
 	
 }
