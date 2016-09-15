@@ -191,11 +191,12 @@ class Extractor {
 			}
 
 			//copy merged files
-			destinationDir = allRevFolder + "/rev_merged_git"
-			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+			//destinationDir = allRevFolder + "/rev_merged_git"
+			//this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 
 
-			def revBase = findCommonAncestor(parent1, parent2)
+			
+			String revBase = findCommonAncestor(parent1, parent2)
 
 			if(revBase != null){
 
@@ -221,7 +222,27 @@ class Extractor {
 			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 			println "Trying again..."
-		} finally {
+		}catch(org.eclipse.jgit.api.errors.JGitInternalException f){
+			println "ERROR: " + f
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+		} catch(org.eclipse.jgit.dircache.InvalidPathException g){
+			println "ERROR: " + g
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+		} catch(org.eclipse.jgit.api.errors.RefNotFoundException h){
+			println "ERROR: " + h
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+		} catch(java.lang.NullPointerException i){
+			println "ERROR: " + i
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+		}finally {
 			println "Closing git repository..."
 			// closing git repository
 			this.git.getRepository().close()
@@ -518,25 +539,25 @@ class Extractor {
 
 		//FUTURE VARIATION POINT
 		//if you wan't to merge and save the merge result
-		/*result = this.runAllFiles(SHA_1, SHA_2)
+		result = this.runAllFiles(SHA_1, SHA_2)
 		String revisionFile = result.getRevisionFile()
 		if(revisionFile != ''){
 			this.printRevisionFiles(revisionFile)
 		}else{
 			println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
-		}*/
+		}
 
 		//elseif you just wan't to download all merges
 
 
-		def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
+		/*def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
 		 if(ancestorSHA != null){
 			 result.revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
 			 this.printRevisionFiles(result.revisionFile)
 		 }else{
 		 	println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
 		 	this.printMergesWithoutBase(mergeCommit.sha)
-		 }
+		 }*/
 
 		return result
 	}
@@ -760,14 +781,16 @@ class Extractor {
 
 		String ancestor = null
 		this.git = openRepository()
-
+		Repository repo = this.git.getRepository()
 		RevWalk walk = new RevWalk(this.git.getRepository())
 		walk.setRetainBody(false)
 		walk.setRevFilter(RevFilter.MERGE_BASE)
 		walk.reset()
 
-		ObjectId shaParent1 = ObjectId.fromString(parent1)
-		ObjectId shaParent2 = ObjectId.fromString(parent2)
+		//ObjectId shaParent1 = ObjectId.fromString(parent1)
+		//ObjectId shaParent1 = ObjectId.fromString(parent2)
+		ObjectId shaParent1 = repo.resolve(parent1)
+		ObjectId shaParent2 = repo.resolve(parent2)
 		ObjectId commonAncestor = null
 
 		try {
