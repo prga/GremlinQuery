@@ -50,7 +50,9 @@ class Blame {
 	public static final String DIFF3MERGE_SEPARATOR = "<<<<<<<";
 	public static final String DIFF3MERGE_END = ">>>>>>>";
 	public static final String DIFF3MERGE_MIDDLE = "=======";
-
+	
+	public static final String NOT_A_PREDICTOR = "NOT_A_PREDICTOR";
+	
 	public String annotateBlame(File left, File base, File right){
 		String result = ''
 		String leftText = left.getText()
@@ -88,12 +90,16 @@ class Blame {
 		println res_left.getMergeStatus()
 		CleanCommand cleanCommandgit = git.clean()
 		cleanCommandgit.call()
-
+		
 		MergeResult res_right = git.merge().include(commitRight.getId()).setCommit(false).call();
 		String status = res_right.mergeStatus
+
+		
 		if(!status.equalsIgnoreCase('conflicting')){
 			git.commit().setMessage("Merging right on master").call();
 			println res_right.getMergeStatus()
+			cleanCommandgit = git.clean()
+			cleanCommandgit.call()
 	
 			//check for identical lines added by both revisions
 			ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
@@ -172,7 +178,7 @@ class Blame {
 
 
 	private String executeAndProcessBlame(File file, Repository repo, RevCommit left,
-			RevCommit right, List<Integer> identicalLines){
+			RevCommit right, ArrayList<Integer> identicalLines){
 
 		String result = ''
 		BlameCommand blamer = new BlameCommand(repo);
@@ -182,7 +188,8 @@ class Blame {
 		blamer.setStartCommit(commitID);
 		blamer.setFilePath('file');
 		BlameResult blame = blamer.call();
-
+		ArrayList<Integer> leftIndexes = new ArrayList<Integer>()
+		ArrayList<Integer> rightIndexes = new ArrayList<Integer>()
 		
 		String text = file.getText()
 		String[] lines = text.split('\n')
@@ -190,7 +197,7 @@ class Blame {
 			RevCommit commit = blame.getSourceCommit(i);
 			String line = ''
 			if( commit.equals(left) ){
-
+				leftIndexes.add(i)
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
 					line = this.LEFT_SEPARATOR + lines[i] 
 				}else{
@@ -198,7 +205,7 @@ class Blame {
 				}
 
 			}else if( commit.equals(right)){
-
+				rightIndexes.add(i)
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
 					line = this.RIGHT_SEPARATOR + lines[i] 
 				}else{
@@ -213,7 +220,11 @@ class Blame {
 
 			result = result + line + '\n'
 		}
-
+		
+		if((leftIndexes.size() == 0 || rightIndexes.size() == 0) && identicalLines.size() > 0){
+			result = Blame.NOT_A_PREDICTOR;
+		}
+		
 		return result
 	}
 
