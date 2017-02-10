@@ -177,10 +177,12 @@ class Blame {
 		String result = ''
 		BlameCommand blamer = new BlameCommand(repo);
 		ObjectId commitID = repo.resolve("HEAD");
-
+		
+		
 		blamer.setStartCommit(commitID);
 		blamer.setFilePath('file');
 		BlameResult blame = blamer.call();
+
 		
 		String text = file.getText()
 		String[] lines = text.split('\n')
@@ -275,9 +277,9 @@ class Blame {
 	}
 
 	public static void main (String [] args){
-		File left = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/left/Example.java')
-		File base = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/base/Example.java')
-		File right = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/right/Example.java')
+		File left = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/left/Case.java')
+		File base = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/base/Case.java')
+		File right = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/right/Case.java')
 		Blame blame = new Blame()
 		String result = blame.annotateBlame(left, base, right)
 		println result

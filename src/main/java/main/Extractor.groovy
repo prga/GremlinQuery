@@ -760,14 +760,16 @@ class Extractor {
 
 		String ancestor = null
 		this.git = openRepository()
-
+		Repository repo = this.git.getRepository()
 		RevWalk walk = new RevWalk(this.git.getRepository())
 		walk.setRetainBody(false)
 		walk.setRevFilter(RevFilter.MERGE_BASE)
 		walk.reset()
 
-		ObjectId shaParent1 = ObjectId.fromString(parent1)
-		ObjectId shaParent2 = ObjectId.fromString(parent2)
+		//ObjectId shaParent1 = ObjectId.fromString(parent1)
+		//ObjectId shaParent2 = ObjectId.fromString(parent2)
+		ObjectId shaParent1 = repo.resolve(parent1)
+		ObjectId shaParent2 = repo.resolve(parent2)
 		ObjectId commonAncestor = null
 
 		try {
