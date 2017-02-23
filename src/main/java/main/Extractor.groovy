@@ -191,8 +191,8 @@ class Extractor {
 			}
 
 			//copy merged files
-			//destinationDir = allRevFolder + "/rev_merged_git"
-			//this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+			destinationDir = allRevFolder + "/rev_merged_git"
+			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 
 
 			
