@@ -816,7 +816,15 @@ class Extractor {
 			renameCommand.call()
 		}
 	}
-
+	
+	private void replayBuildsOnTravis(MergeCommit mc){
+		/*1-clone the fork, if not cloned yet
+		 *2 -dar checkout no commit
+		 * -dar git reset --hard
+		 * - dar git push -f origin HEAD:master
+		 * */
+		
+	}
 
 	static void main (String[] args){
 		//		//testing
