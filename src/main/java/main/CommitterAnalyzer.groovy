@@ -102,7 +102,7 @@ class CommitterAnalyzer {
 		return parentsAreDifferent
 	}
 
-	private String getParentId(Repository repo, String commit){
+	public static String getParentId(Repository repo, String commit){
 
 		String email = ''
 		
@@ -122,31 +122,33 @@ class CommitterAnalyzer {
 
 	}
 
-	def Git openRepository(GremlinProject gProject) {
-		String repositoryDir = this.downloadPath + File.separator + gProject.name
+	public static Git openRepository(String clonePath, String repo) {
+		Git git = null
+		String repositoryDir = clonePath
 		try {
 			File gitWorkDir = new File(repositoryDir);
-			Git git = Git.open(gitWorkDir);
+			git = Git.open(gitWorkDir);
 			Repository repository = git.getRepository()
 			this.renameMainBranchIfNeeded(repository)
 			return git
 		} catch(org.eclipse.jgit.errors.RepositoryNotFoundException e){
-			this.cloneRepository(gProject)
-			this.openRepository(gProject)
+			this.cloneRepository(clonePath, repo)
+			this.openRepository(clonePath, repo)
 		}
+		return git
 	}
 
-	public void cloneRepository(GremlinProject gProject){
-		String repositoryDir = this.downloadPath + File.separator + gProject.name
-
+	public static void cloneRepository(String clonePath, String repo){
+		String repositoryDir = clonePath
+		String url = 'https://github.com/' +  repo
 		// prepare a new folder for the cloned repository
 		File gitWorkDir = new File(repositoryDir)
 		gitWorkDir.mkdirs()
 
 		// then clone
-		println "Cloning from " + gProject.url  + " to " + gitWorkDir + "..."
+		println "Cloning from " + url  + " to " + gitWorkDir + "..."
 		Git.cloneRepository()
-				.setURI(gProject.url)
+				.setURI(url)
 				.setDirectory(gitWorkDir)
 				.call();
 
@@ -162,7 +164,7 @@ class CommitterAnalyzer {
 
 	}
 
-	def private renameMainBranchIfNeeded(Repository repository){
+	 public static void renameMainBranchIfNeeded(Repository repository){
 		def branchName = repository.getBranch();
 		if(branchName != "master"){
 			RenameBranchCommand renameCommand = new RenameBranchCommand(repository);

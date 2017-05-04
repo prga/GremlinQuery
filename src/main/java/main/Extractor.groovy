@@ -658,13 +658,28 @@ class Extractor {
 			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 			println "Trying again..."
-		}catch(org.eclipse.jgit.api.errors.JGitInternalException ex){
-			println "ERROR: " + ex
+		}catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
+			println "ERROR: " + e
 			// reseting
 			this.deleteFiles(allRevFolder)
 			this.restoreGitRepository()
 			println "Trying again..."
-		}finally {
+		}catch(org.eclipse.jgit.api.errors.JGitInternalException f){
+			println "ERROR: " + f
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+		} catch(org.eclipse.jgit.dircache.InvalidPathException g){
+			println "ERROR: " + g
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+		} catch(org.eclipse.jgit.api.errors.RefNotFoundException h){
+			println "ERROR: " + h
+			// reseting
+			this.deleteFiles(allRevFolder)
+			this.restoreGitRepository()
+		} finally {
 			println "Closing git repository..."
 			// closing git repository
 			this.git.getRepository().close()
