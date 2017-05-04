@@ -191,8 +191,8 @@ class Extractor {
 			}
 
 			//copy merged files
-			//destinationDir = allRevFolder + "/rev_merged_git"
-			//this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+			destinationDir = allRevFolder + "/rev_merged_git"
+			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 
 
 			
@@ -802,8 +802,6 @@ class Extractor {
 		walk.setRevFilter(RevFilter.MERGE_BASE)
 		walk.reset()
 
-		//ObjectId shaParent1 = ObjectId.fromString(parent1)
-		//ObjectId shaParent1 = ObjectId.fromString(parent2)
 		ObjectId shaParent1 = repo.resolve(parent1)
 		ObjectId shaParent2 = repo.resolve(parent2)
 		ObjectId commonAncestor = null
@@ -833,7 +831,15 @@ class Extractor {
 			renameCommand.call()
 		}
 	}
-
+	
+	private void replayBuildsOnTravis(MergeCommit mc){
+		/*1-clone the fork, if not cloned yet
+		 *2 -dar checkout no commit
+		 * -dar git reset --hard
+		 * - dar git push -f origin HEAD:master
+		 * */
+		
+	}
 
 	static void main (String[] args){
 		//		//testing
