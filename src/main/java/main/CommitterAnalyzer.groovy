@@ -28,7 +28,7 @@ class CommitterAnalyzer {
 		File projects = new File(projectsFile + File.separator + 'projectList')
 
 		projects.eachLine {
-			String projectName = it.split('/')[1]
+			String projectName = it.split(Pattern.quote(File.separator))[1]
 			GremlinProject gProject = new GremlinProject(projectName, it.trim(), '')
 			ArrayList<MergeCommit> mcList = this.initializeMergeCommits(projectName, resultsPath)
 			if(!mcList.empty){

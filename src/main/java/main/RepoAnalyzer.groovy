@@ -73,7 +73,7 @@ class RepoAnalyzer {
 	}
 
 	private String getRepoDir(String project) {
-		String [] tokens = project.split('/')
+		String [] tokens = project.split(Pattern.quote(File.separator))
 		String projectName = tokens[1]
 		String repositoryDir = this.downloadPath + File.separator + projectName
 
