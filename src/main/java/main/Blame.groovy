@@ -2,6 +2,7 @@ package main
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader
 import java.io.IOException
 import java.io.InputStreamReader;
 
@@ -159,20 +160,42 @@ class Blame {
 	}
 
 	private String executeMerge(File left, File base, File right){
-
-		String mergeCmd = "diff3 --merge " + left.getPath() + " " + base.getPath() + " " + right.getPath()
+		String res = ""
+		String mergeCmd = "git merge-file --diff3 \"" + left.getPath() + "\" \"" +  base.getPath() + "\" \"" + right.getPath() + "\"";
+		
 		Runtime run = Runtime.getRuntime()
 		Process pr = run.exec(mergeCmd)
 
-		BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()))
-		String line = ""
-		String res = ""
-		while ((line=buf.readLine())!=null) {
-			res += line + "\n"
-		}
-		pr.getInputStream().close()
+		res = this.readLeftFile(left)
 
 		return res
+	}
+	
+	public static String readLeftFile(File file) {
+		String leftContent = "";
+		BufferedReader br = null;
+		FileReader fr = null;
+
+		try {
+
+			fr = new FileReader(file);
+			br = new BufferedReader(fr);
+
+			String sCurrentLine;
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				leftContent += sCurrentLine + "\n";
+			}
+			//leftContent = leftContent.substring(0, leftContent.length()-1);
+			fr.close();
+			br.close();
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		}
+		return leftContent;
 	}
 
 
