@@ -1,4 +1,6 @@
 package main
+import java.util.regex.Pattern
+
 import org.eclipse.jgit.api.CleanCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
@@ -55,7 +57,7 @@ class Extractor {
 		this.listMergeCommit 	= this.project.listMergeCommit
 		this.remoteUrl 			= this.project.url
 		this.projectsDirectory	= projectsDirectory + File.separator
-		this.repositoryDir		= this.projectsDirectory + this.project.name + "/git"
+		this.repositoryDir		= this.projectsDirectory + this.project.name + File.separator +"git"
 		this.CONFLICTS 			= 0
 		this.missingUnknown = new ArrayList<MergeCommit>()
 		this.removeOldRevisionFile()
@@ -102,7 +104,7 @@ class Extractor {
 		} catch(org.eclipse.jgit.errors.RepositoryNotFoundException e){
 			this.cloneRepository()
 			/*if conflict predictor*/
-			//this.openRepository()
+			this.openRepository()
 		}
 	}
 
@@ -155,7 +157,8 @@ class Extractor {
 		result.setRevisionFile('')
 
 		// folder of the revisions being tested
-		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" +
+		def allRevFolder = this.projectsDirectory + this.project.name + File.separator + 
+		"revisions" + File.separator + "rev_" +
 				parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		try{
 			new File(allRevFolder).deleteDir()
@@ -164,7 +167,7 @@ class Extractor {
 			// git reset --hard SHA1_1
 			this.resetCommand(this.git, parent1)
 			// copy files for parent1 revision
-			def destinationDir = allRevFolder + "/rev_left_" + parent1.substring(0, 5)
+			def destinationDir = allRevFolder + File.separator +"rev_left_" + parent1.substring(0, 5)
 			this.copyFiles(this.repositoryDir, destinationDir, "")
 			// git clean -f
 			CleanCommand cleanCommandgit = this.git.clean()
@@ -172,8 +175,8 @@ class Extractor {
 			// git checkout -b new SHA1_2
 			def refNew = checkoutAndCreateBranch("new", parent2)
 			// copy files for parent2 revision
-			destinationDir = allRevFolder + "/rev_right_" + parent2.substring(0, 5)
-			def excludeDir	= "**/" + allRevFolder + "/**"
+			destinationDir = allRevFolder + File.separator +"rev_right_" + parent2.substring(0, 5)
+			def excludeDir	= "**"+ File.separator + allRevFolder + File.separator +"**"
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 			// git checkout master
 			checkoutMasterBranch()
@@ -191,7 +194,7 @@ class Extractor {
 			}
 
 			//copy merged files
-			destinationDir = allRevFolder + "/rev_merged_git"
+			destinationDir = allRevFolder + File.separator + "rev_merged_git"
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 
 
@@ -205,7 +208,7 @@ class Extractor {
 				this.resetCommand(this.git, revBase)
 
 				// copy files for base revision
-				destinationDir = allRevFolder + "/rev_base_" + revBase.substring(0, 5)
+				destinationDir = allRevFolder + File.separator + "rev_base_" + revBase.substring(0, 5)
 				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 				// the input revisions listed in a file
 				this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
@@ -333,14 +336,15 @@ class Extractor {
 	java.lang.NullPointerException  {
 
 		// folder of the revisions being tested
-		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+		def allRevFolder = this.projectsDirectory + this.project.name + File.separator + 
+		"revisions" + File.separator + "rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		//try{
 		// opening the working directory
 		this.git = openRepository();
 		// git reset --hard SHA1_1
 		this.resetCommand(this.git, parent1)
 		// copy files for parent1 revision
-		def destinationDir = allRevFolder + "/rev_left_" + parent1.substring(0, 5)
+		def destinationDir = allRevFolder + File.separator + "rev_left_" + parent1.substring(0, 5)
 		this.copyFiles(this.repositoryDir, destinationDir, allConflicts)
 		// git clean -f
 		CleanCommand cleanCommandgit = this.git.clean()
@@ -348,7 +352,7 @@ class Extractor {
 		// git checkout -b new SHA1_2
 		def refNew = checkoutAndCreateBranch("new", parent2)
 		// copy files for parent2 revision
-		destinationDir = allRevFolder + "/rev_right_" + parent2.substring(0, 5)
+		destinationDir = allRevFolder + File.separator + "rev_right_" + parent2.substring(0, 5)
 		this.copyFiles(this.repositoryDir, destinationDir, allConflicts)
 		// git checkout master
 		checkoutMasterBranch()
@@ -361,7 +365,7 @@ class Extractor {
 			def revBase = (res.getBase().toString()).split()[1]
 			this.resetCommand(this.git, revBase)
 			// copy files for base revision
-			destinationDir = allRevFolder + "/rev_base_" + revBase.substring(0, 5)
+			destinationDir = allRevFolder + File.separator + "rev_base_" + revBase.substring(0, 5)
 			this.copyFiles(this.repositoryDir, destinationDir, allConflicts)
 			// the input revisions listed in a file
 			this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
@@ -453,14 +457,14 @@ class Extractor {
 	def copyFiles(String sourceDir, String destinationDir, ArrayList<String> listConflicts){
 		AntBuilder ant = new AntBuilder()
 		listConflicts.each {
-			def folder = it.split("/")
+			def folder = it.split(File.separator)
 			def fileName = folder[(folder.size()-1)]
 			if(fileName.contains(".")){
 				def fileNameSplitted = fileName.split("\\.")
 				def fileExt = fileName.split("\\.")[fileNameSplitted.size() -1]
 				if(canCopy(fileExt)){
-					folder = destinationDir + "/" + (Arrays.copyOfRange(folder, 0, folder.size()-1)).join("/")
-					String file = "**/" + it
+					folder = destinationDir + File.separator + (Arrays.copyOfRange(folder, 0, folder.size()-1)).join(File.separator)
+					String file = "**"+ File.separator + it
 					ant.mkdir(dir:folder)
 					ant.copy(todir: destinationDir) {
 						fileset(dir: sourceDir){
@@ -487,7 +491,7 @@ class Extractor {
 	private String writeRevisionsFile(String leftRev, String rightRev, String baseRev, String dir){
 		String filePath = ''
 		try{
-			filePath = dir + "/rev_" + leftRev + "-" + rightRev + ".revisions"
+			filePath = dir + File.separator + "rev_" + leftRev + "-" + rightRev + ".revisions"
 			def out = new File(filePath)
 
 
@@ -518,7 +522,9 @@ class Extractor {
 		println "Setupping..."
 		// keeping a backup dir
 		this.openRepository()
-		new AntBuilder().copy(todir: this.projectsDirectory + "/temp/"+this.project.name+"/git") {fileset(dir: this.projectsDirectory+this.project.name+"/git", defaultExcludes: false){}}
+		new AntBuilder().copy(todir: this.projectsDirectory + File.separator + 
+			"temp" + File.separator + this.project.name + File.separator + "git") 
+		{fileset(dir: this.projectsDirectory+this.project.name+ File.separator +"git", defaultExcludes: false){}}
 		println "----------------------"
 	}
 
@@ -526,8 +532,10 @@ class Extractor {
 		println "Restoring Git repository..."
 		this.git.getRepository().close()
 		// restoring the backup dir
-		new File(this.projectsDirectory+this.project.name+"/git").deleteDir()
-		new AntBuilder().copy(todir:this.projectsDirectory+this.project.name+"/git") {fileset(dir:this.projectsDirectory + "/temp/" + this.project.name+"/git" , defaultExcludes: false){}}
+		new File(this.projectsDirectory+this.project.name+ File.separator +"git").deleteDir()
+		new AntBuilder().copy(todir:this.projectsDirectory+this.project.name+ File.separator + "git")
+		 {fileset(dir:this.projectsDirectory + File.separator +"temp" + File.separator +
+			  this.project.name+ File.separator + "git" , defaultExcludes: false){}}
 	}
 
 	public 	ExtractorResult extractCommit(MergeCommit mergeCommit){
@@ -568,7 +576,8 @@ class Extractor {
 		result.setRevisionFile('')
 
 		// folder of the revisions being tested
-		String allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" +
+		String allRevFolder = this.projectsDirectory + this.project.name + File.separator + 
+		"revisions" + File.separator + "rev_" +
 				mergeCommit.sha.substring(0, 5)
 
 		try{
@@ -580,7 +589,7 @@ class Extractor {
 			// git reset --hard SHA
 			this.resetCommand(this.git, mergeCommit.sha)
 			// copy files for commit revision
-			def destinationDir = allRevFolder + "/rev_base_" + mergeCommit.sha.substring(0, 5)
+			def destinationDir = allRevFolder + File.separator + "rev_base_" + mergeCommit.sha.substring(0, 5)
 			this.copyFiles(this.repositoryDir, destinationDir, "")
 			// git clean -f
 			CleanCommand cleanCommandgit = this.git.clean()
@@ -590,7 +599,7 @@ class Extractor {
 			// git reset --hard SHA1_1
 			this.resetCommand(this.git, mergeCommit.parent1)
 			// copy files for commit revision
-			destinationDir = allRevFolder + "/rev_left_" + mergeCommit.parent1.substring(0, 5)
+			destinationDir = allRevFolder + File.separator + "rev_left_" + mergeCommit.parent1.substring(0, 5)
 			this.copyFiles(this.repositoryDir, destinationDir, "")
 			// git clean -f
 			cleanCommandgit = this.git.clean()
@@ -600,8 +609,10 @@ class Extractor {
 				// git checkout -b new SHA1_2
 				def refNew = checkoutAndCreateBranch("new", mergeCommit.parent2)
 				// copy files for parent2 revision
-				destinationDir = allRevFolder + "/rev_right_" + mergeCommit.parent2.substring(0, 5)
-				def excludeDir	= "**/" + allRevFolder + "/**"
+				destinationDir = allRevFolder + File.separator + 
+				"rev_right_" + mergeCommit.parent2.substring(0, 5)
+				def excludeDir	= "**" + File.separator + allRevFolder + 
+				File.separator +"**"
 				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 				// git checkout master
 				checkoutMasterBranch()
@@ -618,7 +629,7 @@ class Extractor {
 				}
 
 			}else{
-				destinationDir = allRevFolder + "/rev_right_none"
+				destinationDir = allRevFolder + File.separator +"rev_right_none"
 				new File(destinationDir).mkdir()
 			}
 
@@ -713,7 +724,8 @@ class Extractor {
 
 	private String downloadAllFiles(parent1, parent2, ancestor) {
 		// folder of the revisions being tested
-		def allRevFolder = this.projectsDirectory + this.project.name + "/revisions/rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+		def allRevFolder = this.projectsDirectory + this.project.name +  File.separator+
+		 "revisions" + File.separator +"rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		String result = ''
 		try{
 			// opening the working directory
@@ -722,7 +734,7 @@ class Extractor {
 			this.resetCommand(this.git, parent1)
 
 			// copy files for parent1 revision
-			def destinationDir = allRevFolder + "/rev_left_" + parent1.substring(0, 5)
+			def destinationDir = allRevFolder + File.separator + "rev_left_" + parent1.substring(0, 5)
 
 			this.copyFiles(this.repositoryDir, destinationDir, "")
 			//def rec = new RecursiveFileList()
@@ -735,8 +747,8 @@ class Extractor {
 			// git checkout -b new SHA1_2
 			def refNew = checkoutAndCreateBranch("new", parent2)
 			// copy files for parent2 revision
-			destinationDir = allRevFolder + "/rev_right_" + parent2.substring(0, 5)
-			def excludeDir	   = "**/" + allRevFolder + "/**"
+			destinationDir = allRevFolder + File.separator + "rev_right_" + parent2.substring(0, 5)
+			def excludeDir	   = "**" + File.separator + allRevFolder + File.separator + "**"
 
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 			//rec.removeFiles(new File(destinationDir))
@@ -752,8 +764,8 @@ class Extractor {
 
 			def refAncestor = checkoutAndCreateBranch("ancestor", ancestor)
 			// copy files for ancestor revision
-			destinationDir = allRevFolder + "/rev_base_" + ancestor.substring(0, 5)
-			excludeDir	   = "**/" + allRevFolder + "/**"
+			destinationDir = allRevFolder + File.separator + "rev_base_" + ancestor.substring(0, 5)
+			excludeDir	   = "**" + File.separator + allRevFolder + File.separator + "**"
 
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 			//rec.removeFiles(new File(destinationDir))
