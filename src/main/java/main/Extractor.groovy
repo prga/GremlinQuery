@@ -1,4 +1,8 @@
 package main
+import java.io.BufferedReader
+import java.io.File
+import java.io.IOException
+import java.io.InputStreamReader
 import java.util.regex.Pattern
 
 import org.eclipse.jgit.api.CleanCommand
@@ -52,6 +56,8 @@ class Extractor {
 
 	ArrayList<String> revisionFiles
 
+	private String masterBranch
+
 	public Extractor(GremlinProject project, String projectsDirectory){
 		this.project			= project
 		this.listMergeCommit 	= this.project.listMergeCommit
@@ -63,6 +69,38 @@ class Extractor {
 		this.removeOldRevisionFile()
 		this.revisionFiles = new Hashtable<String, Integer>()
 		this.setup()
+	}
+
+
+	public String getMasterBranch() {
+		return masterBranch;
+	}
+
+
+
+	public void setMasterBranch(String masterBranch) {
+		this.masterBranch = masterBranch;
+	}
+
+	public void setMasterBranch() {
+		ProcessBuilder pb = new ProcessBuilder("git", "branch");
+		pb.directory(new File(repositoryDir));
+		try {
+			Process p = pb.start();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = "";
+			while ((line=buf.readLine())!=null) {
+				if(line.startsWith("*")) {
+					String [] tokens = line.split(" ")
+					this.masterBranch = tokens[tokens.length - 1]
+				}
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	public void removeOldRevisionFile(){
@@ -99,7 +137,7 @@ class Extractor {
 			File gitWorkDir = new File(repositoryDir);
 			Git git = Git.open(gitWorkDir);
 			Repository repository = git.getRepository()
-			this.renameMainBranchIfNeeded(repository)
+			//this.renameMainBranchIfNeeded(repository)
 			return git
 		} catch(org.eclipse.jgit.errors.RepositoryNotFoundException e){
 			this.cloneRepository()
@@ -118,7 +156,7 @@ class Extractor {
 	def checkoutMasterBranch() {
 		ChkoutCmd chkcmd = new ChkoutCmd(this.git.getRepository());
 		//change here if project does not contain a master branch
-		chkcmd.setName("refs/heads/master")
+		chkcmd.setName(this.masterBranch)
 		chkcmd.setForce(true)
 		Ref checkoutResult = chkcmd.call()
 		println "Checked out branch sucessfully: " + checkoutResult.getName()
@@ -150,15 +188,15 @@ class Extractor {
 		Ref resetResult = resetCommand.call()
 		println "Reseted sucessfully to: " + resetResult.getName()
 	}
-	
-	
-	public ExtractorResult runAllFiles(String parent1, String parent2) {
+
+
+	public ExtractorResult runAllFiles(String parent1, String parent2, String revBase) {
 		ExtractorResult result = new ExtractorResult()
 		result.setRevisionFile('')
 
 		// folder of the revisions being tested
-		def allRevFolder = this.projectsDirectory + this.project.name + File.separator + 
-		"revisions" + File.separator + "rev_" +
+		def allRevFolder = this.projectsDirectory + this.project.name + File.separator +
+				"revisions" + File.separator + "rev_" +
 				parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		try{
 			new File(allRevFolder).deleteDir()
@@ -198,24 +236,24 @@ class Extractor {
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 
 
-			
-			String revBase = findCommonAncestor(parent1, parent2)
 
-			if(revBase != null){
 
-				// git reset --hard BASE
 
-				this.resetCommand(this.git, revBase)
 
-				// copy files for base revision
-				destinationDir = allRevFolder + File.separator + "rev_base_" + revBase.substring(0, 5)
-				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
-				// the input revisions listed in a file
-				this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
-				String temp = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
-						revBase.substring(0, 5), allRevFolder)
-				result.setRevisionFile(temp)
-			}
+
+			// git reset --hard BASE
+
+			this.resetCommand(this.git, revBase)
+
+			// copy files for base revision
+			destinationDir = allRevFolder + File.separator + "rev_base_" + revBase.substring(0, 5)
+			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
+			// the input revisions listed in a file
+			this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5), revBase.substring(0, 5), allRevFolder)
+			String temp = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
+					revBase.substring(0, 5), allRevFolder)
+			result.setRevisionFile(temp)
+
 
 			// avoiding references issues
 			this.deleteBranch("new")
@@ -273,7 +311,7 @@ class Extractor {
 
 	public ExtractorResult getConflictingfiles(String parent1, String parent2) {
 		ExtractorResult result = new ExtractorResult()
-		
+
 		try{
 			// opening the working directory
 			this.git = openRepository();
@@ -295,7 +333,7 @@ class Extractor {
 				this.processMergeResult(res.getConflicts(), result)
 				result.revisionFile = 'rev_' + parent1.substring(0, 5) + '-' + parent2.substring(0,5)
 				this.deleteBranch("new")
-				
+
 				this.git.getRepository().close()
 			}
 			// avoiding references issues
@@ -325,7 +363,7 @@ class Extractor {
 			// closing git repository
 			this.git.getRepository().close()
 		}
-		
+
 		return result
 	}
 
@@ -336,8 +374,8 @@ class Extractor {
 	java.lang.NullPointerException  {
 
 		// folder of the revisions being tested
-		def allRevFolder = this.projectsDirectory + this.project.name + File.separator + 
-		"revisions" + File.separator + "rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+		def allRevFolder = this.projectsDirectory + this.project.name + File.separator +
+				"revisions" + File.separator + "rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		//try{
 		// opening the working directory
 		this.git = openRepository();
@@ -522,9 +560,10 @@ class Extractor {
 		println "Setupping..."
 		// keeping a backup dir
 		this.openRepository()
-		new AntBuilder().copy(todir: this.projectsDirectory + File.separator + 
-			"temp" + File.separator + this.project.name + File.separator + "git") 
+		new AntBuilder().copy(todir: this.projectsDirectory + File.separator +
+		"temp" + File.separator + this.project.name + File.separator + "git")
 		{fileset(dir: this.projectsDirectory+this.project.name+ File.separator +"git", defaultExcludes: false){}}
+		this.setMasterBranch();
 		println "----------------------"
 	}
 
@@ -534,8 +573,8 @@ class Extractor {
 		// restoring the backup dir
 		new File(this.projectsDirectory+this.project.name+ File.separator +"git").deleteDir()
 		new AntBuilder().copy(todir:this.projectsDirectory+this.project.name+ File.separator + "git")
-		 {fileset(dir:this.projectsDirectory + File.separator +"temp" + File.separator +
-			  this.project.name+ File.separator + "git" , defaultExcludes: false){}}
+		{fileset(dir:this.projectsDirectory + File.separator +"temp" + File.separator +
+			this.project.name+ File.separator + "git" , defaultExcludes: false){}}
 	}
 
 	public 	ExtractorResult extractCommit(MergeCommit mergeCommit){
@@ -544,30 +583,53 @@ class Extractor {
 		// the commits to checkout
 		def SHA_1 = mergeCommit.parent1
 		def SHA_2 = mergeCommit.parent2
-
+		String problem = null
 		//FUTURE VARIATION POINT
 		//if you wan't to merge and save the merge result
-		result = this.runAllFiles(SHA_1, SHA_2)
-		String revisionFile = result.getRevisionFile()
-		if(revisionFile != ''){
-			this.printRevisionFiles(revisionFile)
-		}else{
-			println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
+
+		String revBase = findCommonAncestor(SHA_1, SHA_2)
+		if(revBase != null) {
+			String base = revBase.substring(0, 8)
+			//it is not a "fast-forward" merge commit
+			if(!base.equals(SHA_1) && !base.equals(SHA_2)) {
+				result = this.runAllFiles(SHA_1, SHA_2, revBase)
+				String revisionFile = result.getRevisionFile()
+				if(revisionFile != ''){
+					this.printRevisionFiles(revisionFile)
+				}else{
+					problem = 'There was some problem while extracting ' + mergeCommit.sha
+				}
+			}else {
+				problem =  mergeCommit.sha + ' is a fast-forward commit'
+			}
+		}else {
+			problem =  mergeCommit.sha + ' returned null on common ancestor search'
 		}
 
+		if(problem!=null) {
+			this.writeOnProblemsReport(problem)
+		}
 		//elseif you just wan't to download all merges
 
 
 		/*def ancestorSHA = this.findCommonAncestor(SHA_1, SHA_2)
 		 if(ancestorSHA != null){
-			 result.revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
-			 this.printRevisionFiles(result.revisionFile)
+		 result.revisionFile = this.downloadAllFiles(SHA_1, SHA_2, ancestorSHA)
+		 this.printRevisionFiles(result.revisionFile)
 		 }else{
-		 	println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
-		 	this.printMergesWithoutBase(mergeCommit.sha)
+		 println('commit sha:' + mergeCommit.getSha() + ' returned null on common ancestor search.')
+		 this.printMergesWithoutBase(mergeCommit.sha)
 		 }*/
 
 		return result
+	}
+
+	public void writeOnProblemsReport(String problem) {
+		String current = new java.io.File( "." ).getCanonicalPath();
+		String filePath = current + File.separator + "ResultData" +
+		File.separator + this.project.name + File.separator +'Problems.csv'
+		File file = new File(filePath);
+		file.append(problem + '\n')
 	}
 
 
@@ -576,8 +638,8 @@ class Extractor {
 		result.setRevisionFile('')
 
 		// folder of the revisions being tested
-		String allRevFolder = this.projectsDirectory + this.project.name + File.separator + 
-		"revisions" + File.separator + "rev_" +
+		String allRevFolder = this.projectsDirectory + this.project.name + File.separator +
+				"revisions" + File.separator + "rev_" +
 				mergeCommit.sha.substring(0, 5)
 
 		try{
@@ -609,10 +671,10 @@ class Extractor {
 				// git checkout -b new SHA1_2
 				def refNew = checkoutAndCreateBranch("new", mergeCommit.parent2)
 				// copy files for parent2 revision
-				destinationDir = allRevFolder + File.separator + 
-				"rev_right_" + mergeCommit.parent2.substring(0, 5)
-				def excludeDir	= "**" + File.separator + allRevFolder + 
-				File.separator +"**"
+				destinationDir = allRevFolder + File.separator +
+						"rev_right_" + mergeCommit.parent2.substring(0, 5)
+				def excludeDir	= "**" + File.separator + allRevFolder +
+						File.separator +"**"
 				this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 				// git checkout master
 				checkoutMasterBranch()
@@ -710,7 +772,7 @@ class Extractor {
 		file.append(line)
 
 	}
-	
+
 	private void printMergesWithoutBase(String sha){
 		String path = "ResultData" + File.separator + this.project.name +
 				File.separator + 'MergesWithoutBase.csv'
@@ -719,13 +781,13 @@ class Extractor {
 			f.createNewFile()
 		}
 		f.append(sha + '\n')
-		
+
 	}
 
 	private String downloadAllFiles(parent1, parent2, ancestor) {
 		// folder of the revisions being tested
 		def allRevFolder = this.projectsDirectory + this.project.name +  File.separator+
-		 "revisions" + File.separator +"rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
+				"revisions" + File.separator +"rev_" + parent1.substring(0, 5) + "_" + parent2.substring(0, 5)
 		String result = ''
 		try{
 			// opening the working directory
@@ -843,14 +905,14 @@ class Extractor {
 			renameCommand.call()
 		}
 	}
-	
+
 	private void replayBuildsOnTravis(MergeCommit mc){
 		/*1-clone the fork, if not cloned yet
 		 *2 -dar checkout no commit
 		 * -dar git reset --hard
 		 * - dar git push -f origin HEAD:master
 		 * */
-		
+
 	}
 
 	static void main (String[] args){
