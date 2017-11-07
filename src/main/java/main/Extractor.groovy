@@ -102,6 +102,24 @@ class Extractor {
 		}
 
 	}
+	
+	//updates the local repo after extracting merge scenario
+	public void gitPull() {
+		ProcessBuilder pb = new ProcessBuilder("git", "pull");
+		pb.directory(new File(repositoryDir));
+		try {
+			Process p = pb.start();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = "";
+			while ((line=buf.readLine())!=null) {
+				println line
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public void removeOldRevisionFile(){
 		def out = new File("ResultData" + File.separator + this.project.name + File.separator + 'RevisionsFiles.csv')
@@ -142,7 +160,7 @@ class Extractor {
 		} catch(org.eclipse.jgit.errors.RepositoryNotFoundException e){
 			this.cloneRepository()
 			/*if conflict predictor*/
-			this.openRepository()
+			//this.openRepository()
 		}
 	}
 
@@ -235,12 +253,6 @@ class Extractor {
 			destinationDir = allRevFolder + File.separator + "rev_merged_git"
 			this.copyFiles(this.repositoryDir, destinationDir, excludeDir)
 
-
-
-
-
-
-
 			// git reset --hard BASE
 
 			this.resetCommand(this.git, revBase)
@@ -253,10 +265,15 @@ class Extractor {
 			String temp = this.writeRevisionsFile(parent1.substring(0, 5), parent2.substring(0, 5),
 					revBase.substring(0, 5), allRevFolder)
 			result.setRevisionFile(temp)
-
+			
 
 			// avoiding references issues
 			this.deleteBranch("new")
+			
+			//needs to go back to previous HEAD
+			this.gitPull()
+			
+			
 		} catch(org.eclipse.jgit.api.errors.CheckoutConflictException e){
 			println "ERROR: " + e
 			// reseting
