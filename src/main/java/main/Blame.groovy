@@ -32,6 +32,7 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.RawTextComparator
+import org.eclipse.jgit.lib.Constants
 
 import org.apache.commons.io.FileUtils
 
@@ -50,9 +51,9 @@ class Blame {
 	public static final String DIFF3MERGE_SEPARATOR = "<<<<<<<";
 	public static final String DIFF3MERGE_END = ">>>>>>>";
 	public static final String DIFF3MERGE_MIDDLE = "=======";
-	
+
 	public static final String NOT_A_PREDICTOR = "NOT_A_PREDICTOR";
-	
+
 	public String annotateBlame(File left, File base, File right){
 		String result = ''
 		String leftText = left.getText()
@@ -72,6 +73,7 @@ class Blame {
 		def ref_left = this.checkoutAndCreateBranch(repo, "left")
 		movedFile.delete()
 		FileUtils.copyFile(left, movedFile);
+		add = git.add().addFilepattern('file').call()
 		RevCommit commitLeft = git.commit().setAll(true).setMessage("Left commit").call()
 
 		checkoutMasterBranch(repo)
@@ -80,34 +82,33 @@ class Blame {
 		def ref_right = this.checkoutAndCreateBranch(repo, "right")
 		movedFile.delete()
 		FileUtils.copyFile(right, movedFile);
+		add = git.add().addFilepattern('file').call()
 		RevCommit commitRight = git.commit().setAll(true).setMessage("Right commit").call()
 
 		checkoutMasterBranch(repo)
 
 		//Merging left and right on master
 		MergeResult res_left = git.merge().include(commitLeft.getId()).setCommit(false).call();
-		git.commit().setMessage("Merging left on master").call();
+		//RevCommit mergeLeft = git.commit().setMessage("Merging left on master").call();
 		println res_left.getMergeStatus()
 		CleanCommand cleanCommandgit = git.clean()
 		cleanCommandgit.call()
-		
-		MergeResult res_right = git.merge().include(commitRight.getId()).setCommit(false).call();
-		String status = res_right.mergeStatus
 
-		
-		if(!status.equalsIgnoreCase('conflicting')){
-			git.commit().setMessage("Merging right on master").call();
-			println res_right.getMergeStatus()
-			cleanCommandgit = git.clean()
-			cleanCommandgit.call()
-	
-			//check for identical lines added by both revisions
-			ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
-	
-			//execute blame routine
-			result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitRight, identicalLines)
-		}
-		
+		/*MergeResult res_right = git.merge().include(commitRight.getId()).setCommit(false).call();
+		 String status = res_right.getMergeStatus()
+		 println status*/
+		this.mergeRightBranch()
+		ObjectId commitID = repo.resolve(Constants.HEAD)
+		RevCommit mergeRight = new RevCommit(commitID)
+
+		//check for identical lines added by both revisions
+		//ArrayList<Integer> identicalLines = this.checkIdenticalLinesAddedByBothRevs(left, base, right)
+		ArrayList<Integer> identicalLines = new ArrayList<Integer>()
+
+		//execute blame routine
+		result = this.executeAndProcessBlame(movedFile, repo, commitLeft, commitRight, mergeRight, identicalLines)
+
+
 
 		//closing git repository and delete temporary dir
 		repo.close();
@@ -115,6 +116,27 @@ class Blame {
 		dir.deleteDir()
 
 		return result
+	}
+
+	/*this method calls git merge from the
+	 * command line ignoring spaces */
+	private void mergeRightBranch() {
+		String repositoryDir = System.getProperty("user.dir") + File.separator + 'GitBlameRepo'
+		ProcessBuilder pb = new ProcessBuilder("git", "merge", "right","-Xignore-all-space");
+		pb.redirectErrorStream(true);
+		pb.directory(new File(repositoryDir));
+		try {
+			Process p = pb.start();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = "";
+			while ((line=buf.readLine())!=null) {
+				System.out.println(line);
+			}
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
 	}
 
 	private List<Integer> checkIdenticalLinesAddedByBothRevs(File left, File base, File right){
@@ -162,7 +184,7 @@ class Blame {
 	private String executeMerge(File left, File base, File right){
 		String res = ""
 		String mergeCmd = "git merge-file --diff3 \"" + left.getPath() + "\" \"" +  base.getPath() + "\" \"" + right.getPath() + "\"";
-		
+
 		Runtime run = Runtime.getRuntime()
 		Process pr = run.exec(mergeCmd)
 
@@ -170,7 +192,7 @@ class Blame {
 
 		return res
 	}
-	
+
 	public static String readLeftFile(File file) {
 		String leftContent = "";
 		BufferedReader br = null;
@@ -200,53 +222,53 @@ class Blame {
 
 
 	private String executeAndProcessBlame(File file, Repository repo, RevCommit left,
-			RevCommit right, ArrayList<Integer> identicalLines){
+			RevCommit right, RevCommit mergeRight, ArrayList<Integer> identicalLines){
 
 		String result = ''
 		BlameCommand blamer = new BlameCommand(repo);
 		ObjectId commitID = repo.resolve("HEAD");
-		
-		
+
+
 		blamer.setStartCommit(commitID);
 		blamer.setFilePath('file');
 		BlameResult blame = blamer.call();
 		ArrayList<Integer> leftIndexes = new ArrayList<Integer>()
 		ArrayList<Integer> rightIndexes = new ArrayList<Integer>()
-		
+
 		String text = file.getText()
 		String[] lines = text.split('\n')
 		for(int i = 0 ; i < lines.length; i++){
 			RevCommit commit = blame.getSourceCommit(i);
 			String line = ''
-			if( commit.equals(left) ){
+			if( commit.equals(left)){
 				leftIndexes.add(i)
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
-					line = this.LEFT_SEPARATOR + lines[i] 
+					line = this.LEFT_SEPARATOR + lines[i]
 				}else{
-					line = lines[i] 
+					line = lines[i]
 				}
 
-			}else if( commit.equals(right)){
+			}else if( commit.equals(right) || commit.equals(mergeRight)){
 				rightIndexes.add(i)
 				if(  ( !this.isIdenticalLine(i, identicalLines) ) ){
-					line = this.RIGHT_SEPARATOR + lines[i] 
+					line = this.RIGHT_SEPARATOR + lines[i]
 				}else{
-					line = lines[i] 
+					line = lines[i]
 				}
 
 			}else{
 
-				line = lines[i] 
+				line = lines[i]
 
 			}
 
 			result = result + line + '\n'
 		}
-		
+
 		if((leftIndexes.size() == 0 || rightIndexes.size() == 0) && identicalLines.size() > 0){
 			result = Blame.NOT_A_PREDICTOR;
 		}
-		
+
 		return result
 	}
 
@@ -310,9 +332,15 @@ class Blame {
 	}
 
 	public static void main (String [] args){
-		File left = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/left/Case.java')
-		File base = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/base/Case.java')
-		File right = new File('/Users/paolaaccioly/Desktop/Teste/jdimeTests/right/Case.java')
+		/*exemplo editsamemc
+		 * File left = new File("C:\\Users\\155 X-MX\\Desktop\\Teste\\editsamemc\\left.txt");
+		 File base = new File("C:\\Users\\155 X-MX\\Desktop\\Teste\\editsamemc\\base.txt");
+		 File right = new File("C:\\Users\\155 X-MX\\Desktop\\Teste\\editsamemc\\right.txt");*/
+
+		//exemplo editsamefd
+		File left = new File("C:\\Users\\155 X-MX\\Desktop\\Teste\\left");
+		File base = new File("C:\\Users\\155 X-MX\\Desktop\\Teste\\base");
+		File right = new File("C:\\Users\\155 X-MX\\Desktop\\Teste\\right");
 		Blame blame = new Blame()
 		String result = blame.annotateBlame(left, base, right)
 		println result
